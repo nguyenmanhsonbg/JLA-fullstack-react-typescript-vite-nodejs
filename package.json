@@ -1,0 +1,17 @@
+{
+  "name": "swp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:server": "cd be && npm i && npx sequelize-cli db:create && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all && npm start",
+    "start:client": "cd fe && npm i && npm run build && npm run start",
+    "setup": "concurrently \"npm run start:server\" \"npm run start:client\""
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

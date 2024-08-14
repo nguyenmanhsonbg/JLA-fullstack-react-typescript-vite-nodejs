@@ -1,0 +1,11 @@
+.home-bar:hover {
+  background-color: #7aab41;
+}
+
+.home-bar:focus {
+  background-color: #7aab41;
+}
+
+.textHomeBar {
+  color: black;
+}

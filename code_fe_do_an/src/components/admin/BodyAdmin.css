@@ -1,0 +1,17 @@
+.btn_option:hover {
+  background-color: #7aab41;
+}
+
+.btn_option:focus {
+  background-color: #7aab41;
+}
+
+.btn_phantrang {
+  background-color: #d9d9d9;
+  border-radius: 8px;
+}
+
+.btn_phantrang:focus {
+  background: #000;
+  color: #fff;
+}

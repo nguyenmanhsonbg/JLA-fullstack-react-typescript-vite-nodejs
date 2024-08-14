@@ -1,0 +1,114 @@
+@startuml
+skinparam packageStyle rectangle
+
+package "Account Management" {
+  class Account {
+    account.js
+  }
+  class AccountDay {
+    account_day.js
+  }
+  class AccountWeek {
+    account_week.js
+  }
+}
+
+package "Course Management" {
+  class Course {
+    course.js
+  }
+  class Enroll {
+    enroll.js
+  }
+  class Week {
+    week.js
+  }
+}
+
+package "Content" {
+  class Alphabet {
+    alphabet.js
+  }
+  class AlphabetType {
+    alphabet_type.js
+  }
+  class Grammar {
+    grammar.js
+  }
+  class GrammarExample {
+    grammar_example.js
+  }
+  class Kanji {
+    kanji.js
+  }
+  class KanjiWord {
+    kanji_word.js
+  }
+  class Vocabulary {
+    vocabulary.js
+  }
+}
+
+package "Quizzes" {
+  class Quiz {
+    quiz.js
+  }
+  class QuizType {
+    quiz_type.js
+  }
+  class Question {
+    question.js
+  }
+  class QuestionType {
+    question_type.js
+  }
+  class Option {
+    option.js
+  }
+}
+
+package "Videos" {
+  class Video {
+    video.js
+  }
+  class VideoQuestion {
+    video_question.js
+  }
+  class VideoOption {
+    video_option.js
+  }
+}
+
+package "Miscellaneous" {
+  class Role {
+    role.js
+  }
+  class Status {
+    status.js
+  }
+  class Day {
+    day.js
+  }
+}
+
+' Relationships between packages
+Account ..> Role : has
+Account ..> Enroll : enrolls in
+Enroll ..> Course : relates to
+Course ..> Week : spans
+
+AlphabetType ..> Alphabet : categorizes
+GrammarExample ..> Grammar : exemplifies
+KanjiWord ..> Kanji : uses
+Vocabulary ..> Course : part of
+
+Quiz ..> Question : contains
+Question ..> Option : has
+QuizType ..> Quiz : categorizes
+
+VideoQuestion ..> Video : relates to
+VideoOption ..> VideoQuestion : contains
+
+Course ..> Quiz : includes
+Course ..> Video : includes
+@enduml

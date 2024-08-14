@@ -1,0 +1,4 @@
+root: D:\DoAn2024 
+path: C:\Program Files\nodejs 
+arch: 64 
+proxy: none

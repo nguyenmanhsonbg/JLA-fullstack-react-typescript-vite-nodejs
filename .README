@@ -1,0 +1,10 @@
+CHÚ Ý ĐỌC FILE SAU RỒI LÀM GÌ THÌ LÀM
+
+- CÀI MYSQL (TRÊN YOUTUBE KHÔNG THIẾU ~~) ĐẾN BƯỚC CÀI MẬT KHẨU THÌ ĐỂ LÀ "22042001" ĐỂ ĐỠ PHẢI SỬA FILE ENV
+
+- NẾU KHÔNG ĐỂ MẬT KHẨU NHƯ TRÊN THÌ SỬA FILE .ENV CỦA BE TẠI DÒNG "DB_PASS" BẰNG MẬT KHẨU TRÊN MÁY
+
+- THỰC HIỆN CÁC LỆNH SAU:
+
+1. TẠI FOLDER CHỨA 2 FOLDER LÀ (fe và be) CHẠY 2 LỆNH: "npm i", "npm run setup"
+2. ĐỢI MỘT LÚC RỒI ENJOY(LẦN ĐẦU  SẼ CHẠY KHOẢNG 3-5 PHÚT TÙY MÁY SAU THÌ SẼ KHOẢNG 1 PHÚT THÔI) :>>>
