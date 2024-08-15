@@ -31,9 +31,7 @@ Danh sách công nghệ sử dụng:
 + BackendL: Node.js, Express.
 + DatabaseL: MySQL.
 
-Demo hoặc Screenshot: Bạn có thể bổ sung các hình ảnh hoặc video demo để người khác có thể dễ dàng hình dung về dự án.
-
-Thực tế:
+Screenshot
 Màn login
 ![image](https://github.com/user-attachments/assets/c20f79a5-5599-4249-8285-51b04fe0bc9c)
 
