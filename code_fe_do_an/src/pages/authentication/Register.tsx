@@ -229,8 +229,8 @@ export default function Register({ openLogin }: RegisterProps) {
               >
                 Đăng ký
               </Button>
-              <div className="text-center">Hoặc</div>
-              <GoogleButton />
+              {/* <div className="text-center">Hoặc</div>
+              <GoogleButton /> */}
             </div>
           </div>
           {widthScreen >= 1000 && (

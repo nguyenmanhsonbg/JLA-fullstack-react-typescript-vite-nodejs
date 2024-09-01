@@ -119,6 +119,7 @@ export default function Video() {
       const request = await axios.post('/update-video-learned', {
         accountId: accountId,
         videoId: video_id,
+        dayId: day_id
       }, {
         headers: {
           Authorization: token,
@@ -211,7 +212,7 @@ export default function Video() {
                       <CarouselItem key={index}>
                         <div className="p-1">
                           <Card>
-                            <CardContent className={`flex flex-col pt-10 h-[670px] w-[1200px] ${completedVideos.has(lesson.video_id) ? 'bg-[#e0f7fa]' : 'bg-[#fff8e1]'}`}>
+                            <CardContent className={`flex flex-col pt-10 h-[670px] w-[1200px] bg-[#f2fae9]`}>
                               <div className="flex flex-col gap-9 basis-2/5">
                                 <div className="text-2xl text-[#7db660] font-semibold">
                                   {lesson.video_name}{" "}
@@ -235,24 +236,23 @@ export default function Video() {
                                     console.error('Error loading video:', e.target.error, 'Video URL:', lesson?.video_link);
                                      }}
                                    />
-                                  {!completedVideos.has(lesson.video_id) && (
+                                  {!completedVideos.has(lesson.video_id) ? (
                                     <Button
                                       className="mt-8"
                                       onClick={() => handleCompleteVideo(lesson.video_id)}
                                     >
                                       Đánh dấu hoàn thành
                                     </Button>
-                                  )}
-                                  <Dialog>
-                                    <DialogTrigger asChild>
-                                      <Button className="mt-4">
-                                        Luyện tập
-                                      </Button>
-                                    </DialogTrigger>
-                                    <DialogContent>
-                                      <Practice data={lesson?.questions} />
-                                    </DialogContent>
-                                  </Dialog>
+                                  ) :(
+                                    <Button
+                                      className="mt-8"
+                                   
+                                    >
+                                      Đã hoàn thành
+                                    </Button>
+                                  )
+                                  }
+                              
                                 </div>
                               </div>
                             </CardContent>

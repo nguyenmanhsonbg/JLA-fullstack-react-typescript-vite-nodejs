@@ -28,6 +28,10 @@ module.exports = (sequelize, DataTypes) => {
 			target_id: {
 				type: DataTypes.STRING,
 				allowNull: false,
+				references: {
+					model: "Account",
+					key: "account_id",
+				},
 			},
 			source_id: {
 				type: DataTypes.STRING,

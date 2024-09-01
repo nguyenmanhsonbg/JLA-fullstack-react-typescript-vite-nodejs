@@ -59,18 +59,18 @@ function DayCard({
         );
         if (response.status === 200) {
           notification.success({
-            message: "Deleted successfully",
+            message: "Xóa thành công",
             description: response.data.data.message,
           });
           setReload(true);
         }
       } catch (error) {
         console.error(
-          "Error deleting the day:",
+          "Lỗi khi xóa ngày :",
           error.response ? error.response.data : error.message
         );
         notification.error({
-          message: "Failed to Delete Day",
+          message: "Xóa ngày thất bại",
           description: `Error: ${error.message}`,
         });
       }
@@ -339,7 +339,7 @@ function DayCard({
                 </>
               ) : (
                 <Card style={{ margin: "3% 0" }}>
-                  <Empty description={"No have lesson in here"} />
+                  <Empty description={"Không có bài học"} />
                 </Card>
               )}
             </Panel>
@@ -347,7 +347,7 @@ function DayCard({
         ))
       ) : (
         <Card style={{ margin: "3% 0" }}>
-          <Empty description={"No have day in here"} />
+          <Empty description={"Không có ngày học"} />
         </Card>
       )}
     </>

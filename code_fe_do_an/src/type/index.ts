@@ -8,13 +8,15 @@ export type AlphabetResponse = {
 };
 
 export type CourseResponse = {
-    course_id: number;
-    course_name: string;
-    description: string;
-    course_image: string;
-    week: number;
-    totalProgress: number;
-    
+  course_id: number;
+  course_name: string;
+  description: string;
+  course_image: string;
+  week: number;
+  //totalProgress: number;
+  course_level: string;
+  course_skill: string;
+  progressPercentage: number;
 };
 export type WeekResponse = {
     week_id: number;

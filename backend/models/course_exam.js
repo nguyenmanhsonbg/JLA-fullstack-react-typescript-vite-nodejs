@@ -37,6 +37,12 @@ module.exports = (sequelize, DataTypes) => {
     {
       tableName: "course_exam",
       timestamps: false,
+      indexes: [
+        {
+          unique: true,
+          fields: ["course_exam_id", "course_id", "week_id"]
+        }
+      ]
     }
   );
 

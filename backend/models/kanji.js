@@ -30,7 +30,7 @@ module.exports = (sequelize, DataTypes) => {
 			},
 			kanji_kunyomi: {
 				type: DataTypes.STRING,
-				allowNull: false,
+				allowNull: true,
 			},
 			kanji_onyomi: {
 				type: DataTypes.STRING,

@@ -6,34 +6,67 @@ import ImgCrop from 'antd-img-crop';
 import { AiOutlinePlus, AiOutlineDelete, AiOutlineEdit } from 'react-icons/ai';
 import styled from 'styled-components';
 import axios from 'axios';
-import MultiChoiceQuestion from './MultiChoiceQuestionCreating';
+import MultiChoiceQuestionCreating from './MultiChoiceQuestionCreating';
+
+interface Option {
+  id: number;
+  content: string;
+}
+
+interface SubQuestion {
+  id: number;
+  questionContent: string;
+  options: Option[];
+  correctOptionId: number | null;
+  imageUrl: string | null;
+}
 
 interface ListeningQuestionProps {
   questionId: number;
   onDelete: (id: number) => void;
-  onConfirm: (id: number, questions: any[], audioUrl: string | null) => void;
+  onConfirm: (id: number, subQuestions: SubQuestion[], audioUrl: string | null) => void;
   onEdit: (id: number) => void;
   onCancel: () => void;
   isEditing?: boolean;
   isConfirmed?: boolean;
+  subQuestions?: SubQuestion[];
+  audioUrl?: string | null;
 }
 
-const ListeningQuestionCreating: React.FC<ListeningQuestionProps> = ({ questionId, onDelete, onConfirm, onEdit, onCancel, isEditing = true, isConfirmed = false }) => {
-  const [questions, setQuestions] = useState<any[]>([]);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+
+const ListeningQuestionCreating: React.FC<ListeningQuestionProps> = ({
+  questionId,
+  onDelete,
+  onConfirm,
+  onEdit,
+  onCancel,
+  isEditing = true,
+  isConfirmed = false,
+  subQuestions = [],
+  audioUrl = null
+}) => {
+  const [questions, setQuestions] = useState<SubQuestion[]>(subQuestions);
+  const [currentAudioUrl, setCurrentAudioUrl] = useState<string | null>(audioUrl);
   const [fileList, setFileList] = useState([]);
 
-  useEffect(() => {
+    useEffect(() => {
     if (!isEditing && !isConfirmed) {
-      setQuestions([]);
-      setAudioUrl(null);
-      setFileList([]);
+      resetListeningState();
+    } else {
+      setQuestions(subQuestions);
+      setCurrentAudioUrl(audioUrl);
     }
-  }, [isEditing, isConfirmed]);
+  }, [isEditing, isConfirmed, subQuestions, audioUrl]);
+
+  const resetListeningState = () => {
+    setQuestions([]);
+    setCurrentAudioUrl(null);
+    setFileList([]);
+  };
 
   const handleAddQuestion = () => {
     if (isEditing) {
-      setQuestions([...questions, { id: Date.now(), isEditing: true }]);
+      setQuestions([...questions, { id: Date.now(), questionContent: '', options: [], correctOptionId: null, imageUrl: null }]);
     }
   };
 
@@ -43,7 +76,7 @@ const ListeningQuestionCreating: React.FC<ListeningQuestionProps> = ({ questionI
     }
   };
 
-  const handleConfirmQuestion = (id: number, questionContent: string, options: any[], correctOptionId: number, imageUrl: string | null) => {
+  const handleConfirmQuestion = (id: number, questionContent: string, options: Option[], correctOptionId: number | null, imageUrl: string | null) => {
     setQuestions(questions.map(question =>
       question.id === id ? { ...question, questionContent, options, correctOptionId, imageUrl, isEditing: false } : question
     ));
@@ -52,7 +85,7 @@ const ListeningQuestionCreating: React.FC<ListeningQuestionProps> = ({ questionI
   const handleAudioUpload = async (info: UploadChangeParam) => {
     if (info.file.status === 'done') {
       const newAudioUrl = URL.createObjectURL(info.file.originFileObj as RcFile);
-      setAudioUrl(newAudioUrl);
+      setCurrentAudioUrl(newAudioUrl);
       setFileList([{
         uid: info.file.uid,
         name: info.file.name,
@@ -84,38 +117,38 @@ const ListeningQuestionCreating: React.FC<ListeningQuestionProps> = ({ questionI
         status: 'done',
         url: filePath,
       }]);
-      setAudioUrl(filePath);
+      setCurrentAudioUrl(filePath);
     } catch (error) {
       message.error('Upload failed.');
     }
   };
 
   const beforeUpload = (file: RcFile) => {
-  const isMp3 = file.type === 'audio/mp3' || file.name.endsWith('.mp3');
-  if (!isMp3) {
-    message.error('Bạn chỉ có thể chọn tệp có định dạng .mp3');
-    return false;
-  }
+    const isMp3 = file.type === 'audio/mp3' || file.name.endsWith('.mp3');
+    if (!isMp3) {
+      message.error('You can only upload MP3 files.');
+      return false;
+    }
 
-  if (fileList.length >= 1) {
-    message.error('Bạn chỉ có thể tải lên một tệp.');
-    return false;
-  }
+    if (fileList.length >= 1) {
+      message.error('You can only upload one audio file.');
+      return false;
+    }
 
-  return true;
+    return true;
   };
 
   const handleRemoveAudio = () => {
-    setAudioUrl(null);
+    setCurrentAudioUrl(null);
     setFileList([]);
   };
 
-  const handleConfirm = () => {
-    if (questions.length === 0 || audioUrl === null) {
+    const handleConfirm = () => {
+    if (questions.length === 0 || currentAudioUrl === null) {
       message.warning('Please ensure at least one question is added and an audio file is uploaded.');
       return;
     }
-    onConfirm(questionId, questions, audioUrl);
+    onConfirm(questionId, questions, currentAudioUrl);
   };
 
   const handleCancel = () => {
@@ -124,10 +157,11 @@ const ListeningQuestionCreating: React.FC<ListeningQuestionProps> = ({ questionI
 
   return (
     <ListeningContainer>
-      <ListeningHeader>
-        <h3>Listening Question {questionId}:</h3>
+        <ListeningHeader>
         <ListeningActions>
-          {isConfirmed && <AiOutlineEdit onClick={() => onEdit(questionId)} />}
+          {!isEditing && (
+            <AiOutlineEdit onClick={() => onEdit(questionId)} />
+          )}
           <AiOutlineDelete onClick={() => onDelete(questionId)} />
         </ListeningActions>
       </ListeningHeader>
@@ -148,12 +182,12 @@ const ListeningQuestionCreating: React.FC<ListeningQuestionProps> = ({ questionI
               showDownloadIcon: false,
             }}
           >
-            {fileList.length < 1 && '+ Upload Audio'}
+            {fileList.length < 1 && '+ Tải lên file nghe'}
           </Upload>
         </>
       )}
       {questions.map((question) => (
-        <MultiChoiceQuestion
+        <MultiChoiceQuestionCreating
           key={question.id}
           questionId={question.id}
           onDelete={handleDeleteQuestion}
@@ -161,21 +195,24 @@ const ListeningQuestionCreating: React.FC<ListeningQuestionProps> = ({ questionI
           onEdit={() => isEditing && setQuestions(questions.map(q => q.id === question.id ? { ...q, isEditing: true } : q))}
           isConfirmed={!question.isEditing}
           isEditing={question.isEditing}
-          isParentEditing={isEditing}
+          content={question.questionContent}
+          options={question.options}
+          correctOptionId={question.correctOptionId}
+          imageUrl={question.imageUrl}
         />
       ))}
       {isEditing && (
         <AddQuestionButton type="dashed" onClick={handleAddQuestion} icon={<AiOutlinePlus />}>
-          Add Question
+          Thêm câu hỏi
         </AddQuestionButton>
       )}
       {isEditing && (
-         <ButtonContainer>
+        <ButtonContainer>
           <ConfirmButton type="primary" onClick={handleConfirm}>
-            Confirm
+            Xong
           </ConfirmButton>
           <CancelButton type="default" onClick={handleCancel}>
-            Cancel
+            Hủy
           </CancelButton>
         </ButtonContainer>
       )}

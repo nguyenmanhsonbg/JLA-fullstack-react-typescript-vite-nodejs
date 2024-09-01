@@ -61,5 +61,6 @@ cleanUpSystem.forEach((cronElement) => {
 });
 
 app.listen(BE_PORT, () => {
+	process.emitWarning = () => {};
 	console.log(`Server is running on ${BE_PORT}`);
 });

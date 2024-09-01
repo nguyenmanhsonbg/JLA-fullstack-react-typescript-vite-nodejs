@@ -20,7 +20,7 @@ export default function GrammarItem({
 
   return (
     <div className="flex flex-row w-full h-16 gap-5 px-7">
-      <div className={`flex items-center justify-center text-white rounded-md basis-1/6 font-semibold ${isLearned ? 'bg-[#00796b]' : 'bg-[#4b9c47]'}`}>
+      <div className={`flex items-center justify-center text-white rounded-md basis-1/6 font-semibold bg-[#4b9c47]`}>
         {grammar_name} 
         {isLearned && (
           <AiOutlineCheckCircle className="ml-2 text-white" /> 
@@ -31,7 +31,7 @@ export default function GrammarItem({
           </>
         )}
       </div>
-      <div className={`flex flex-row justify-between pl-28 pr-7 rounded-md basis-5/6 items-center ${isLearned ? 'bg-[#e0f7fa]' : 'bg-[#d1eeb0]'}`}>
+      <div className={`flex flex-row justify-between pl-28 pr-7 rounded-md basis-5/6 items-center bg-[#d1eeb0]`}>
         <div className="text-xl font-semibold">{grammar_structure}</div>
         <Button
           className="bg-[#d1eeb0] border border-[#4b9c47] text-black hover:bg-[#b8e782] hover:text-black"

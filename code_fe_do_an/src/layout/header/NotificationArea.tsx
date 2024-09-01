@@ -9,9 +9,9 @@ type Props = {
   userId: number
 }
 
-type NotiTargetType = 'user'|'system'
+type NotiTargetType = 'user' | 'system'
 
-export function NotificationArea ({userId} : Props) {
+export function NotificationArea({ userId }: Props) {
 
   // ==== STATES ====
   const [loading, setLoading] = useState(false)
@@ -23,22 +23,22 @@ export function NotificationArea ({userId} : Props) {
   const [systemActivePage, setSystemActivePage] = useState<number>(1)
   const [systemTotalPages, setSystemTotalPages] = useState<number>(0)
   const [currentNotiTargetType, setCurrentNotiTargetType] = useState<NotiTargetType>('system')
-  const PAGE_LIMIT = 5
-
-  // ==== WATCHERS ====
+  const [isCollapsed, setIsCollapsed] = useState(true);
+  const PAGE_LIMIT_COLLAPSED = 5;
+  const PAGE_LIMIT_EXPANDED = 12;
 
   // ==== ASYNC FUNCTIONS ====
-  const fetchNoti = async (notiTarget: NotiTargetType = 'system', notiType: NotiType = 'all', next_page: number = 1, limit: number = PAGE_LIMIT) => {
-    const noti_fetch_id = notiTarget === 'user' ? {target_id: userId} : {source_id: 1} 
-    const fetchNotiPayload : NotiFetchPayload = {
+  const fetchNoti = async (notiTarget: NotiTargetType = 'system', notiType: NotiType = 'all', next_page: number = 1, limit: number = PAGE_LIMIT_COLLAPSED) => {
+    const noti_fetch_id = notiTarget === 'user' ? { target_id: userId } : { source_id: 1 }
+    const fetchNotiPayload: NotiFetchPayload = {
       type: notiType,
       ...noti_fetch_id,
       next_page,
       limit,
     }
-    return await axios.post('/noti/findById', fetchNotiPayload)
+    return await axios.post('/getNoti', fetchNotiPayload)
       .then(res => {
-        const data : NofiFetchResponse = res.data.data.data
+        const data: NofiFetchResponse = res.data.data.data
         switch (currentNotiTargetType) {
           case 'system':
             setSystemActivePage(data.current_page)
@@ -51,6 +51,7 @@ export function NotificationArea ({userId} : Props) {
           default:
             break
         }
+
         return data.data
       }).catch(err => {
         console.error('Can not get notifications: ', err)
@@ -58,41 +59,43 @@ export function NotificationArea ({userId} : Props) {
       })
   }
 
-  const getUserNoti = async (next_page: number = 1, type: NotiType = 'all', limit: number = PAGE_LIMIT) => {
-    setLoading(true)
-    const newFetchedNotis = await fetchNoti('user', type, next_page, limit)
+  const getUserNoti = async (next_page: number = 1, type: NotiType = 'all') => {
+    setLoading(true);
+    const limit = isCollapsed ? PAGE_LIMIT_COLLAPSED : PAGE_LIMIT_EXPANDED;
+    const newFetchedNotis = await fetchNoti('user', type, next_page, limit);
 
-    // unique noti by id TODO: update this function for performance optimization
+    // unique noti by id
     const newNotiSet = newFetchedNotis.reduce((curList, noti) => {
-      const isExisted = curList.some(n => n.noti_id === noti.noti_id)
-      if (!isExisted) curList.push(noti)
-      return curList
-    }, userNotifications)
+      const isExisted = curList.some(n => n.noti_id === noti.noti_id);
+      if (!isExisted) curList.push(noti);
+      return curList;
+    }, userNotifications);
 
-    setUserNotifications(newNotiSet)
-    setLoading(false)
-  }
-  
-  const getSystemNoti = async (next_page: number = 1, type: NotiType = 'allWithUnsent', limit: number = PAGE_LIMIT) => {
-    setLoading(true)
-    const newFetchedNotis = await fetchNoti('system', type, next_page, limit)
+    setUserNotifications(newNotiSet);
+    setLoading(false);
+  };
 
-    // unique noti by id TODO: update this function for performance optimization
+  const getSystemNoti = async (next_page: number = 1, type: NotiType = 'all') => {
+    setLoading(true);
+    const limit = isCollapsed ? PAGE_LIMIT_COLLAPSED : PAGE_LIMIT_EXPANDED;
+    const newFetchedNotis = await fetchNoti('system', type, next_page, limit);
+
+    // unique noti by id
     const newNotiSet = newFetchedNotis.reduce((curList, noti) => {
-      const isExisted = curList.some(n => n.noti_id === noti.noti_id)
-      if (!isExisted) curList.push(noti)
-      return curList
-    }, systemNotifications)
+      const isExisted = curList.some(n => n.noti_id === noti.noti_id);
+      if (!isExisted) curList.push(noti);
+      return curList;
+    }, systemNotifications);
 
-    setSystemNotifications(newNotiSet)
-    setLoading(false)
-  }
+    setSystemNotifications(newNotiSet);
+    setLoading(false);
+  };
 
   // ==== LOGIC FUNCTIONS ====
 
   const handleGetMoreNotifications = () => {
     let nextPage = 1
-    switch(currentNotiTargetType) {
+    switch (currentNotiTargetType) {
       case 'system':
         nextPage = systemActivePage + 1
         setSystemActivePage(nextPage)
@@ -105,14 +108,22 @@ export function NotificationArea ({userId} : Props) {
         break
       default:
         break
-      
     }
   }
 
-  // ==== UTILITIES FUNCTIONS ====
+  // Toggle between collapsed and expanded
+  const toggleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
+    // Refetch notifications when toggling to ensure correct limit is applied
+    if (currentNotiTargetType === 'system') {
+      getSystemNoti();
+    } else {
+      getUserNoti();
+    }
+  };
 
   const isGetMoreBtnDisabled = () => {
-    switch(currentNotiTargetType) {
+    switch (currentNotiTargetType) {
       case 'user':
         return userActivePage >= userTotalPages
       case 'system':
@@ -123,10 +134,12 @@ export function NotificationArea ({userId} : Props) {
   }
 
   const renderedNotiList = () => {
-    const renderedNotis = currentNotiTargetType === 'system' ? systemNotifications : userNotifications
-    return ((renderedNotis.length === 0) && !loading ? 
+    const renderedNotis = currentNotiTargetType === 'system' ? systemNotifications : userNotifications;
+    const notificationsToShow = isCollapsed ? renderedNotis.slice(0, PAGE_LIMIT_COLLAPSED) : renderedNotis;
+
+    return ((renderedNotis.length === 0) && !loading ?
       (<span className="">Chưa có thông báo</span>) :
-      renderedNotis.map(noti => (
+      notificationsToShow.map(noti => (
         <section
           key={`noti-${currentNotiTargetType}-${noti.noti_id}`}
           className={`select-none mb-1 p-1 border-solid border rounded hover:border-slate-400 ${!!noti.is_read ? '' : 'bg-green-100 hover:bg-green-200'}`}
@@ -148,8 +161,8 @@ export function NotificationArea ({userId} : Props) {
             type='text'
             className={`w-[50%] ${currentNotiTargetType === 'system' ? 'border-b border-emerald-700 border-2' : ''}`}
             onClick={() => {
-              setCurrentNotiTargetType('system')
-              getSystemNoti(systemActivePage)
+              setCurrentNotiTargetType('system');
+              getSystemNoti(systemActivePage);
             }}
           >
             Hệ thống
@@ -158,8 +171,8 @@ export function NotificationArea ({userId} : Props) {
             type='text'
             className={`w-[50%] ${currentNotiTargetType === 'user' ? 'border-b border-emerald-700 border-2' : ''}`}
             onClick={() => {
-              setCurrentNotiTargetType('user')
-              getUserNoti(userActivePage)
+              setCurrentNotiTargetType('user');
+              getUserNoti(userActivePage);
             }}
           >
             Học tập
@@ -180,7 +193,15 @@ export function NotificationArea ({userId} : Props) {
               loading={loading}
               onClick={handleGetMoreNotifications}
             >
-              Get more notification
+              Xem thêm thông báo khác
+            </Button>
+          </div>
+          <div className="flex justify-center w-full mt-2">
+            <Button
+              type="link"
+              onClick={toggleCollapse}
+            >
+              {isCollapsed ? "Xem tất cả" : "Thu gọn"}
             </Button>
           </div>
         </section>
@@ -196,7 +217,7 @@ export function NotificationArea ({userId} : Props) {
         trigger="click"
         placement="bottomRight"
       >
-        <FaBell className="size-9 text-[#7db660] cursor-pointer" onClick={() => getSystemNoti()}/>
+        <FaBell className="size-9 text-[#7db660] cursor-pointer" onClick={() => getSystemNoti()} />
       </Popover>
     </div>
   );

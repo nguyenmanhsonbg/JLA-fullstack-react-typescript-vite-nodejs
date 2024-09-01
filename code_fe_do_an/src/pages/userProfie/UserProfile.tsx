@@ -17,35 +17,115 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { FaCamera } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { Upload, message } from "antd";
+import ImgCrop from 'antd-img-crop';
+import { IoMdSettings } from "react-icons/io";
+
 
 
 export default function UserProfile() {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const [input, setInput] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatar || null);
+  const [fileList, setFileList] = useState([]);
+  const [showUpload, setShowUpload] = useState(false); 
+
+
   const navigate = useNavigate();
-  const handleOnSubmitFile = async () => {
+
+  useEffect(() => {
+     if (user.avatar) {
+       console.log(user.avatar);
+      setAvatarPreview(user.avatar);
+      setFileList([{
+        uid: '-1',
+        name: 'current_avatar.png',
+        status: 'done',
+        url: user.avatar,
+      }]);
+    }
+  }, [user.avatar]);
+
+  const handleUpload = async (options) => {
+    const { file } = options;
+
     const formData = new FormData();
-    formData.append("userAvatar", input);
+    formData.append('file', file);
     try {
-      const response = await axios.put(
+      const response = await axios.post('http://localhost:5000/upload-file', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: user.token,
+        },
+      });
+
+      const { filePath } = response.data;
+      setFileList([{
+        uid: file.uid,
+        name: file.name,
+        status: 'done',
+        url: filePath,
+      }]);
+      setAvatarPreview(filePath);
+      message.success(`${file.name} file uploaded successfully`);
+    } catch (error) {
+      message.error('Upload failed.');
+    }
+  };
+
+  const beforeUpload = (file) => {
+    if (fileList.length >= 1) {
+      message.warning('You can only upload one image.');
+      return false;
+    }
+    return true;
+  };
+
+  const handleRemoveImage = () => {
+    setAvatarPreview(null);
+    setFileList([]);
+  };
+
+
+    const handleOnSubmitFile = async () => {
+    if (!avatarPreview) {
+      message.warning('Please upload an avatar image first.');
+      return;
+    }
+
+    try {
+      // Update the user's avatar in the database
+      const updateResponse = await axios.put(
         `/account/${user.account_id}`,
-        formData,
+        { avatar: avatarPreview }, 
         {
           headers: {
             Authorization: user.token,
           },
         }
       );
-      if (response.status == 200) {
-        // setMessage(response.data.data.message);
-        // alert(response.data.data.message);
+
+      if (updateResponse.status === 200) {
+        message.success("Cập nhật avatar thành công!");
+        setUser((prevUser) => {
+        if (!prevUser) return null;
+        return {
+          ...prevUser,
+          avatar: avatarPreview,
+        };
+        });
+        setShowUpload(false);
       } else {
-        throw new Error("Somthing went wrong!");
+        throw new Error("Failed to update avatar in the database.");
       }
     } catch (error) {
-          navigate('/error', { state: { message: error } });
+      console.error(error);
+      navigate('/error', { state: { message: error.message } });
     }
   };
+
+
+
   const [widthScreen, setWidthScreen] = useState(window.innerWidth);
   useEffect(() => {
     window.addEventListener("resize", () => {
@@ -68,36 +148,46 @@ export default function UserProfile() {
                   <div className="flex flex-col items-center w-1/4 gap-10">
                     <Avatar className="w-full h-auto mt-14">
                       <AvatarImage
-                        className="rounded-full"
-                        src="https://github.com/shadcn.png"
-                        alt="@shadcn"
-                      />
+                      className="rounded-full"
+                      src={avatarPreview || "https://github.com/shadcn.png"}
+                      alt="User Avatar"
+                    />
                       <AvatarFallback></AvatarFallback>
                     </Avatar>
-                    <div className="flex flex-col items-center w-full max-w-sm gap-3">
-                      <div className="flex flex-row items-center justify-center gap-3">
-                        <FaCamera />
-                        <Label className="text-center">Tải ảnh lên</Label>
+                    
+                  {/* Button Icon */}
+           <Button
+        className="mt-0"
+        onClick={() => setShowUpload(!showUpload)} // Toggle visibility
+      >
+        <IoMdSettings />
+      </Button>
+
+      {/* Conditional Rendering of Upload Section */}
+      {showUpload && (
+        <div className="flex flex-col items-center mt-4">
+          <ImgCrop rotationSlider>
+            <Upload
+              customRequest={handleUpload}
+              listType="picture-card"
+              fileList={fileList}
+              beforeUpload={beforeUpload}
+              maxCount={1}
+              onRemove={handleRemoveImage}
+              showUploadList={{
+                showPreviewIcon: false,
+                showRemoveIcon: true,
+                showDownloadIcon: false,
+              }}
+            >
+              {fileList.length < 1 && '+ Upload'}
+              </Upload>
+              </ImgCrop>
+              <Button className="mt-2" onClick={handleOnSubmitFile}>
+                  Cập nhật
+                </Button>
                       </div>
-                      <div className="flex flex-row gap-3 w-[250px]">
-                        <Input
-                          className="w-3/5"
-                          id="picture"
-                          type="file"
-                          multiple={false}
-                          accept=".png,.jpg,.jpeg"
-                          onChange={(
-                            event: React.ChangeEvent<HTMLInputElement>
-                          ) => {
-                            setInput(event.target.files[0]);
-                            console.log(event.target.files[0]);
-                          }}
-                        />
-                        <Button className="w-2/5" onClick={handleOnSubmitFile}>
-                          Cập nhật
-                        </Button>
-                      </div>
-                    </div>
+                   )}
                     <TabsList className="flex flex-col w-full gap-2 mt-12 bg-[#f1f8e9]">
                       <TabsTrigger value="account" className="mb-2">
                         Thông tin cá nhân
@@ -108,7 +198,7 @@ export default function UserProfile() {
                       <TabsTrigger value="learningProcess">
                         Tiến độ học tập
                       </TabsTrigger>
-                      <TabsTrigger value="game">Lịch sử trò chơi</TabsTrigger>
+                      {/* <TabsTrigger value="game">Lịch sử trò chơi</TabsTrigger> */}
                     </TabsList>
                   </div>
                   <div>

@@ -193,7 +193,7 @@ export default function WeeklyExam() {
                 </BreadcrumbPage>
                 <BreadcrumbSeparator />
                 <BreadcrumbPage className="text-2xl font-semibold">
-                  Weekly Exam
+                  Kiểm tra tổng hợp
                 </BreadcrumbPage>
               </BreadcrumbList>
             </Breadcrumb>
@@ -202,7 +202,7 @@ export default function WeeklyExam() {
           <div className="flex justify-center w-full mt-7">
             <div className="w-full max-w-6xl max-h-[800px] overflow-y-auto bg-white rounded-lg shadow-lg p-6 border-2">
               {loading ? (
-                <div className="flex justify-center items-center h-full">
+                <div className="flex items-center justify-center h-full">
                   <Spin size="large" />
                 </div>
               ) : examData ? (
@@ -214,7 +214,7 @@ export default function WeeklyExam() {
                     score={0}
                 />
               ) : (
-                <div className="flex justify-center items-center h-full">
+                <div className="flex items-center justify-center h-full">
                   <Spin size="large" />
                 </div>
               )}

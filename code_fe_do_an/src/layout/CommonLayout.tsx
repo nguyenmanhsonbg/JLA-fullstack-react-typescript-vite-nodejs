@@ -18,6 +18,12 @@ import { Link } from "react-router-dom";
 const { Header, Sider, Content } = Layout;
 const { SubMenu } = Menu;
 
+const statusRole= {
+  1: "Quản trị viên",
+  2: "Người duyệt nội dung",
+  3: "Người tạo nội dung",
+};
+
 const CommonLayout = ({ children }) => {
   const auth = useAuth();
   const { handleLogout } = auth;
@@ -32,9 +38,7 @@ const CommonLayout = ({ children }) => {
       const userEncode = localStorage.getItem("user");
         if (userEncode) {
           const userDecode = JSON.parse(userEncode);
-          // setRole(userDecode?.role_id.toString());
-            setRole("");
-          
+          setRole(userDecode?.role_id.toString());
     }
   }, [auth])
   
@@ -58,7 +62,18 @@ const CommonLayout = ({ children }) => {
           >
             FPT Nihongo Dekiru
           </h1>
-          <h1>Content creator</h1>
+           <h2
+            style={{
+              color: "#fff",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              marginTop: 3
+            }}
+          >
+           {statusRole[role]}
+          </h2>
+          
         </div>
         <Menu theme="dark" mode="inline" defaultSelectedKeys={["1"]}>
           {/* admin - user management */}
@@ -67,12 +82,12 @@ const CommonLayout = ({ children }) => {
               <Menu.Item key="1" icon={<UserOutlined />}>
             <Link to="/admin/user-management">Quản lý người dùng</Link>
               </Menu.Item>
-                  <SubMenu key="sub3" icon={<NotificationOutlined />} title="Notification">
+                  <SubMenu key="sub3" icon={<NotificationOutlined />} title="Thông báo">
             <Menu.Item key="8" icon={<PlusOutlined/>}>
-              <Link to="/admin/notification/create">Create</Link>
+              <Link to="/admin/notification/create">Tạo mới</Link>
             </Menu.Item>
             <Menu.Item key="9" icon={<SettingOutlined/>}>
-              <Link to="/admin/notification/manage">Manage</Link>
+              <Link to="/admin/notification/manage">Quản lý</Link>
             </Menu.Item>
           </SubMenu>
             </>
@@ -82,7 +97,7 @@ const CommonLayout = ({ children }) => {
           {/* content manager - course manager */}
           {role === '2' && (
             <Menu.Item key="2" icon={<BookOutlined />}>
-            <Link to="course-management/manage">Quản lý khóa học</Link>
+            <Link to="/contentManager/course-management/manage">Quản lý khóa học</Link>
             </Menu.Item>)}
           
           {/* content creator - course manager - exam manager */}
@@ -96,7 +111,6 @@ const CommonLayout = ({ children }) => {
            <Link to="/contentCreator/course-management/manage">Quản lý</Link>
           </Menu.Item>
            </SubMenu>
-
           <SubMenu key="examSubmenu" icon={<FileTextOutlined />} title="Bài kiểm tra">
           <Menu.Item key="createExam" icon={<PlusOutlined />}>
           <Link to="/contentCreator/exam-management/create">Tạo mới</Link>

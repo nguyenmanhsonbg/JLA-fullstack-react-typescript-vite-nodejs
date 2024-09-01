@@ -36,7 +36,10 @@ export default function NotificationModifier ({loading, notification, handleChan
 
   return (
     <Form layout="vertical" autoComplete="off">
-      <Form.Item label="Title">
+      <Form.Item
+        label="Tiêu đề"
+        rules={[{ required: true, message: "Hãy nhập tiêu đề!" }]}
+      >
         <Input
           value={tmpNotification.title}
           disabled={loading}
@@ -46,7 +49,10 @@ export default function NotificationModifier ({loading, notification, handleChan
         />
       </Form.Item>
 
-      <Form.Item label="Content">
+      <Form.Item
+        label="Nội dung"
+        rules={[{ required: true, message: "Hãy nhập nội dung!" }]}
+      >
         <Input.TextArea
           value={tmpNotification.content}
           disabled={loading}
@@ -56,15 +62,21 @@ export default function NotificationModifier ({loading, notification, handleChan
         />
       </Form.Item>
 
-      <Form.Item label="Notify date" className="">
+      <Form.Item label="Ngày thông báo" className="">
         <DatePicker
           showNow
           disabled={loading}
-          placeholder={`${tmpNotification.noti_date ? convertDateToString(tmpNotification.noti_date, true) : 'Select notify date'}`}
-          onChange={(date: any, dateString: string) => handleChangeNotiDate(dateString)}
+          placeholder={`${
+            tmpNotification.noti_date
+              ? convertDateToString(tmpNotification.noti_date, true)
+              : "Select notify date"
+          }`}
+          onChange={(date: any, dateString: string) =>
+            handleChangeNotiDate(dateString)
+          }
           className="block"
         />
       </Form.Item>
     </Form>
-  )
+  );
 }

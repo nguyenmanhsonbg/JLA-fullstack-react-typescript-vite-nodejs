@@ -1,4 +1,4 @@
-const { assignExamToCourse, removeExamFromCourse, getAllExamsByCourse, getAllCoursesByExam, getExamByCourseAndWeek } = require('../services/courseExamService');
+const { assignExamToCourse, removeExamFromCourse, getAllExamsByCourse, getAllCoursesByExam, getExamByCourseAndWeek , updateCourseExam} = require('../services/courseExamService');
 const { ok, badRequest, notFound, error, responseWithData } = require('../handlers/response_handler');
 
 class CourseExamController {
@@ -22,6 +22,28 @@ class CourseExamController {
       return badRequest(res, err.message);
     }
   }
+
+async updateCourseExam(req, res) {
+  try {
+    const { course_id, exam_id, week_id } = req.body;
+
+    if (!course_id || !exam_id || !week_id) {
+      return badRequest(res, "Course ID, Exam ID, and Week ID are required");
+    }
+
+    const updatedCourseExam = await updateCourseExam({
+      course_id,
+      exam_id,
+      week_id
+    });
+
+    return ok(res, updatedCourseExam);
+  } catch (err) {
+    return badRequest(res, err.message);
+  }
+}
+
+
 
   async removeExamFromCourse(req, res) {
     try {
@@ -53,14 +75,12 @@ class CourseExamController {
   async getExamByCourseAndWeek(req, res) {
     try {
       const { courseId, weekId } = req.body;
-
       if (courseId == null || weekId == null) {
         console.log("One or more required fields are null");
         return badRequest(res, "Course ID and Week ID are required");
       }
 
       const exam = await getExamByCourseAndWeek(courseId, weekId);
-   
       return ok(res, exam);
     } catch (err) {
       return responseWithData(res, 202, "Not have any exam");

@@ -15,6 +15,8 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { useNavigate } from "react-router-dom";
+import { notification } from "antd";
+import { CheckCircleOutlined } from "@ant-design/icons";
 
 export default function DetailUserProfile() {
   const { user, setUser } = useAuth(); // Assuming setUser is a function to update the user in your auth context
@@ -59,6 +61,14 @@ export default function DetailUserProfile() {
     });
     return () => subscription.unsubscribe();
   }, [form.watch, initialUserProfile]);
+  const openNotification = () => {
+    notification.open({
+      message: " ",
+      description: "Thông tin của bạn đã được cập nhật thành công.",
+      icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
+      placement: "topRight",
+    });
+  };
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
@@ -72,9 +82,10 @@ export default function DetailUserProfile() {
         setUser(updatedUser); // Update the user in context
         localStorage.setItem("user", JSON.stringify(updatedUser)); // Save the updated user to local storage
         setMessage(response.data.data.message);
-        // alert(response.data.data.message);
+        //alert(response.data.data.message);
+        openNotification();
       } else {
-        throw new Error("Something went wrong!");
+        throw new Error("Error!");
       }
     } catch (error) {
         navigate('/error', { state: { message: error } });

@@ -1,7 +1,9 @@
-import { Form, Input, Button, Upload, notification } from "antd";
+import { Form, Input, Button, Upload, notification, Select, Tooltip } from "antd";
 import ImgCrop from "antd-img-crop";
 import axios from "axios";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+
+const { Option } = Select;
 
 const StepOne = ({
   course,
@@ -11,17 +13,36 @@ const StepOne = ({
   onPreview,
   handleNextStep,
   mode,
+  originalWeek
 }) => {
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+
+    const validateForm = () => {
+    const { course_name, week, description, course_level, course_skill } = course;
+    if (!course_name || !week || !description || !course_level || !course_skill) {
+      setIsButtonDisabled(true);
+    } else if (mode === "edit" && parseInt(week) < originalWeek) {
+      setIsButtonDisabled(true);
+    } else {
+      setIsButtonDisabled(false);
+    }
+  };
+
   const onChange = (info) => {
     if (info.file.status === "done") {
       const newImageUrl = info.file.response.filePath;
       setFileList([newImageUrl]);
+      validateForm();
     }
   };
 
   const beforeUpload = (file) => {
     if (fileList.length >= 1) {
-      alert("Upload failed, just have one image in here");
+      //alert("Upload failed, just have one image in here");
+      notification.error({
+        message: "Tải lên thất bại",
+        description: "Chỉ được sử dụng 1 file ảnh",
+      });
       return false;
     }
     return true;
@@ -53,18 +74,32 @@ const StepOne = ({
           url: filePath,
         },
       ]);
+      validateForm();
     } catch (error) {
-       notification.error({
-          message: "Upload failed:",
-          description: `Error: ${error.message}`,
-        });
+      notification.error({
+        message: "Tải lên thất bại",
+        description: `Error: ${error.message}`,
+      });
     }
   };
 
   const handleChangeInput = (e) => {
     const { name, value } = e.target;
-    setCourse({ ...course, [name]: value });
+    let validateValue = value
+
+    //set maximum value week
+    if (name === "week") {
+      validateValue = value > 12 ? 12 : value
+    }
+    setCourse({ ...course, [name]: validateValue });
+    validateForm();
   };
+
+  const handleSelectChange = (name, value) => {
+    setCourse({ ...course, [name]: value });
+    validateForm();
+  };
+
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -72,19 +107,22 @@ const StepOne = ({
       course_name: course.course_name,
       week: course.week,
       description: course.description,
+      course_skill: course.course_skill,
+      course_level: course.course_level,
     });
+    validateForm(); 
   }, [course, form]);
 
   return (
     <>
       <Form layout="vertical" form={form}>
         <Form.Item
-          label="Course Name"
+          label="Tên khóa học"
           name="course_name"
-          rules={[{ required: true, message: "Please input the course name!" }]}
+          rules={[{ required: true, message: "Hãy nhập tên khóa học!" }]}
         >
           <Input
-            placeholder="Enter course name"
+            placeholder="Nhập tên khóa học"
             name="course_name"
             value={course.course_name}
             onChange={handleChangeInput}
@@ -92,19 +130,24 @@ const StepOne = ({
           />
         </Form.Item>
 
-        <Form.Item label="Week" name="week">
+        <Form.Item
+          label="Số tuần"
+          name="week"
+          rules={[{ required: true, message: "Hãy nhập số tuần!" }]}
+        >
           <Input
             readOnly={mode === "view"}
-            placeholder="Enter number of weeks"
+            placeholder="Nhập số tuần"
             type="number"
             name="week"
             value={course.week}
             min={0}
+            max={12}
             onChange={handleChangeInput}
           />
         </Form.Item>
 
-        <Form.Item label="Image" name="course_image">
+        <Form.Item label="Hình ảnh" name="course_image">
           <ImgCrop rotationSlider>
             <Upload
               customRequest={handleUpload}
@@ -124,34 +167,71 @@ const StepOne = ({
                 showDownloadIcon: false,
               }}
             >
-              {fileList.length < 5 && "+ Upload"}
+              {fileList.length < 5 && "+ Chọn ảnh"}
             </Upload>
           </ImgCrop>
         </Form.Item>
 
         <Form.Item
-          label="Description"
+          label="Mô tả khóa học :"
           name="description"
-          rules={[{ required: true, message: "Please input the description!" }]}
+          rules={[{ required: true, message: "Hãy nhập mô tả!!" }]}
         >
           <Input.TextArea
             readOnly={mode === "view"}
             rows={4}
-            placeholder="Enter description"
+            placeholder="Nhập nội dung mô tả khóa học......"
             name="description"
             value={course.description}
             onChange={handleChangeInput}
           />
         </Form.Item>
 
-        <Form.Item>
-          <Button
-            type="primary"
-            onClick={handleNextStep}
-            style={{ width: "100%" }}
+        {/* New Form Item for Course Level */}
+        <Form.Item
+          label="Cấp độ"
+          name="course_level"
+          rules={[{ required: true, message: "Hãy chọn cấp độ học" }]}
+        >
+          <Select
+            disabled={mode === "view"}
+            value={course.course_level}
+            onChange={(value) => handleSelectChange("course_level", value)}
           >
-            Next
-          </Button>
+            {["N1", "N2", "N3", "N4", "N5"].map((level) => (
+              <Option key={level} value={level}>
+                {level}
+              </Option>
+            ))}
+          </Select>
+        </Form.Item>
+
+        {/* New Form Item for Course Skill */}
+        <Form.Item
+          label="Kĩ năng"
+          name="course_skill"
+          rules={[{ required: true, message: "Hãy chọn kĩ năng" }]}
+        >
+          <Input
+            placeholder=""
+            name="course_skill"
+            value={course.course_skill}
+            onChange={handleChangeInput}
+            readOnly={mode === "view"}
+          />
+        </Form.Item>
+
+        <Form.Item>
+          <Tooltip title={isButtonDisabled ? "Hoàn thiện thông tin" : ""}>
+            <Button
+              type="primary"
+              onClick={handleNextStep}
+              style={{ width: "100%" }}
+              disabled={isButtonDisabled}
+            >
+              {mode === "view" ? "Chi tiết khóa học" : "Tiếp theo"}
+            </Button>
+          </Tooltip>
         </Form.Item>
       </Form>
     </>

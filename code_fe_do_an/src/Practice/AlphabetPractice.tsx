@@ -1,5 +1,6 @@
 import { useAuth } from "@/hook/AuthContext";
-import { SmileOutlined } from "@ant-design/icons";
+import Alphabet from "@/pages/alphabet/Alphabet";
+import { SmileOutlined,FrownOutlined } from "@ant-design/icons";
 import { Button, Card, Flex, Input, Typography, notification } from "antd";
 import { useEffect, useState } from "react";
 import React from 'react';
@@ -46,6 +47,9 @@ const AlphabetPracticeComponent = ({ type = 1 }) => {
   const [api, contextHolder] = notification.useNotification();
   const [data, setData] = useState([]);
 
+  const amountQuestionTypeCharacter = 104;
+  const amountQuestionTypeNumber = 45;
+
   const openNotification = (message, description, status) => {
     api.open({
       message: message,
@@ -53,10 +57,16 @@ const AlphabetPracticeComponent = ({ type = 1 }) => {
       icon: status ? (
         <SmileOutlined
           style={{
-            color: "#108ee9",
+            color: "#1b8a52",
           }}
         />
-      ) : null,
+      ) : (
+        <FrownOutlined
+          style={{
+            color: "#ff4d4f",
+          }}
+        />
+      ),
     });
   };
 
@@ -73,14 +83,14 @@ const AlphabetPracticeComponent = ({ type = 1 }) => {
         setCurrentQuestionIndex(currentQuestionIndex + 1);
       } else {
         openNotification(
-          "Congratulations!",
-          "Congratulations! You have completed the quiz.",
+          "Chúc mừng!",
+          "Chúc mừng bạn đã hoàn thành bài kiểm tra.",
           true
         );
         setQuiz([]);
       }
     } else {
-      openNotification("Incorrect!", "Incorrect. Try again!", false);
+      openNotification("Sai!", "Vui lòng thử lại!", false);
     }
   };
 
@@ -109,6 +119,17 @@ const AlphabetPracticeComponent = ({ type = 1 }) => {
     handleFetchData();
   }, []);
 
+  const handleChangeInput = (e) => {
+    const { value } = e.target;
+    let validatedValue = value;
+    if (type == 8 || type == 9) {
+      validatedValue = value > amountQuestionTypeCharacter ? amountQuestionTypeCharacter : value
+    } else {
+      validatedValue = value > amountQuestionTypeNumber ? amountQuestionTypeNumber : value
+    }
+
+    setNumQuestions(Number(validatedValue));
+  }
   return (
     <Card className="rounded-md shadow-md">
       <div className="w-full h-full">
@@ -122,8 +143,9 @@ const AlphabetPracticeComponent = ({ type = 1 }) => {
               <Input className="hover:border-[#7db660]"
                 type="number"
                 value={numQuestions}
-                onChange={(e) => setNumQuestions(Number(e.target.value))}
+                onChange={handleChangeInput}
                 min={0}
+                max={data.length}
               />
               {/* ;
               <input

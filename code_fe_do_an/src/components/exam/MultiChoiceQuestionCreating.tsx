@@ -16,46 +16,79 @@ interface Option {
 interface MultiChoiceQuestionProps {
   questionId: number;
   onDelete: (id: number) => void;
-  onConfirm: (id: number, questionContent: string, options: Option[], correctOptionId: number, imageUrl: string | null) => void;
+  onConfirm: (id: number, questionContent: string, options: Option[], correctOptionId: number | null, imageUrl: string | null) => void;
   onEdit: (id: number) => void;
   isConfirmed?: boolean;
   onCancel: () => void;
   isEditing?: boolean;
+  content?: string;
+  options?: Option[];
+  correctOptionId?: number | null;
+  imageUrl?: string | null;
 }
 
-const MultiChoiceQuestionCreating: React.FC<MultiChoiceQuestionProps> = ({ questionId, onDelete, onConfirm, onEdit, onCancel, isConfirmed = false,  isEditing = true }) => {
-  const [questionContent, setQuestionContent] = useState('');
-  const [options, setOptions] = useState<Option[]>([]);
-  const [correctOptionId, setCorrectOptionId] = useState<number | null>(null);
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+const MultiChoiceQuestionCreating: React.FC<MultiChoiceQuestionProps> = ({  questionId,
+  onDelete,
+  onConfirm,
+  onEdit,
+  onCancel,
+  isConfirmed = false,
+  isEditing = true,
+  content = '',
+  options = [],
+  correctOptionId = null,
+  imageUrl = null }) => {
+  const [questionContent, setQuestionContent] = useState(content);
+  const [questionOptions, setQuestionOptions] = useState<Option[]>(options);
+  const [selectedCorrectOptionId, setSelectedCorrectOptionId] = useState<number | null>(correctOptionId);
+  const [currentImageUrl, setCurrentImageUrl] = useState<string | null>(imageUrl);
   const [fileList, setFileList] = useState([]);
 
   useEffect(() => {
     if (!isEditing && !isConfirmed) {
-      setQuestionContent('');
-      setOptions([]);
-      setCorrectOptionId(null);
-      setImageUrl(null);
-      setFileList([]);
+      resetQuestionState();
+    } else {
+      setQuestionContent(content);
+      setQuestionOptions(options);
+      setSelectedCorrectOptionId(correctOptionId);
+      setCurrentImageUrl(imageUrl);
     }
-  }, [isEditing, isConfirmed]);
+  }, [isEditing, isConfirmed, content, options, correctOptionId, imageUrl]);
 
-  const handleAddOption = () => {
-    if (options.length < 4) {
-      setOptions([...options, { id: Date.now(), content: '' }]);
+    const resetQuestionState = () => {
+    setQuestionContent('');
+    setQuestionOptions([]);
+    setSelectedCorrectOptionId(null);
+    setCurrentImageUrl(null);
+    setFileList([]);
+  };
+
+
+ const handleAddOption = () => {
+    if (questionOptions.length < 4) {
+      setQuestionOptions([...questionOptions, { id: Date.now(), content: '' }]);
     }
   };
 
-  const handleDeleteOption = (id: number) => {
-    setOptions(options.filter(option => option.id !== id));
+ const handleDeleteOption = (id: number) => {
+    setQuestionOptions(questionOptions.filter(option => option.id !== id));
+    if (selectedCorrectOptionId === id) {
+      setSelectedCorrectOptionId(null);
+    }
   };
 
-  const handleConfirm = () => {
-    if (questionContent.trim() === '' || options.length !== 4 || correctOptionId === null || options.some(option => option.content.trim() === '')) {
-      message.warning('Please ensure the question is filled, exactly 4 options are provided, one correct option is selected, and an image is added.');
+
+ const handleConfirm = () => {
+    if (
+      questionContent.trim() === '' ||
+      questionOptions.length !== 4 ||
+      selectedCorrectOptionId === null ||
+      questionOptions.some(option => option.content.trim() === '')
+    ) {
+      message.warning('Please ensure the question is filled, exactly 4 options are provided, and one correct option is selected.');
       return;
     }
-    onConfirm(questionId, questionContent, options, correctOptionId, imageUrl);
+    onConfirm(questionId, questionContent, questionOptions, selectedCorrectOptionId, currentImageUrl);
   };
 
   const handleCancel = () => {
@@ -66,10 +99,10 @@ const MultiChoiceQuestionCreating: React.FC<MultiChoiceQuestionProps> = ({ quest
     onEdit(questionId);
   };
 
-  const handleImageUpload = (info: UploadChangeParam) => {
+const handleImageUpload = (info: UploadChangeParam) => {
     if (info.file.status === 'done') {
       const newImageUrl = URL.createObjectURL(info.file.originFileObj as RcFile);
-      setImageUrl(newImageUrl);
+      setCurrentImageUrl(newImageUrl);
       setFileList([{
         uid: info.file.uid,
         name: info.file.name,
@@ -84,7 +117,6 @@ const MultiChoiceQuestionCreating: React.FC<MultiChoiceQuestionProps> = ({ quest
 
   const handleUpload = async (options) => {
     const { file } = options;
-
     const formData = new FormData();
     formData.append('file', file);
     try {
@@ -101,7 +133,7 @@ const MultiChoiceQuestionCreating: React.FC<MultiChoiceQuestionProps> = ({ quest
         status: 'done',
         url: filePath,
       }]);
-      setImageUrl(filePath);
+      setCurrentImageUrl(filePath);
     } catch (error) {
       message.error('Upload failed.');
     }
@@ -109,21 +141,20 @@ const MultiChoiceQuestionCreating: React.FC<MultiChoiceQuestionProps> = ({ quest
 
   const beforeUpload = (file) => {
     if (fileList.length >= 1) {
-      alert('You can only upload one image.');
+      message.warning('You can only upload one image.');
       return false;
     }
     return true;
   };
 
   const handleRemoveImage = () => {
-    setImageUrl(null);
+    setCurrentImageUrl(null);
     setFileList([]);
   };
 
   return (
-    <QuestionContainer>
+      <QuestionContainer>
       <QuestionHeader>
-        <h3>Question {questionId}:</h3>
         <QuestionActions>
           {isEditing ? (
             <AiOutlineEdit onClick={handleEdit} />
@@ -140,43 +171,43 @@ const MultiChoiceQuestionCreating: React.FC<MultiChoiceQuestionProps> = ({ quest
         </QuestionActions>
       </QuestionHeader>
       <Input
-        placeholder="Question"
+        placeholder="Câu hỏi"
         value={questionContent}
         onChange={(e) => setQuestionContent(e.target.value)}
         disabled={!isEditing}
       />
-      {options.map((option) => (
+      {questionOptions.map((option) => (
         <OptionContainer key={option.id}>
           <Input
-            placeholder="Option"
+            placeholder="Đáp án ..."
             value={option.content}
             onChange={(e) => {
-              const updatedOptions = options.map(o =>
+              const updatedOptions = questionOptions.map(o =>
                 o.id === option.id ? { ...o, content: e.target.value } : o
               );
-              setOptions(updatedOptions);
+              setQuestionOptions(updatedOptions);
             }}
             disabled={!isEditing}
           />
           <OptionActions>
             <Radio
-              checked={correctOptionId === option.id}
-              onChange={() => setCorrectOptionId(option.id)}
+              checked={selectedCorrectOptionId === option.id}
+              onChange={() => setSelectedCorrectOptionId(option.id)}
               disabled={!isEditing}
             />
             {isEditing && <AiOutlineDelete onClick={() => handleDeleteOption(option.id)} />}
           </OptionActions>
         </OptionContainer>
       ))}
-      {isEditing && options.length < 4 && (
+      {isEditing && questionOptions.length < 4 && (
         <AddOptionButton type="dashed" onClick={handleAddOption} icon={<AiOutlinePlus />}>
-          Add Option
+          Thêm lựa chọn
         </AddOptionButton>
       )}
       {isEditing && (
         <>
           <ImgCrop rotationSlider>
-            <Upload className='mt-3'
+            <Upload
               customRequest={handleUpload}
               listType="picture-card"
               fileList={fileList}
@@ -190,22 +221,22 @@ const MultiChoiceQuestionCreating: React.FC<MultiChoiceQuestionProps> = ({ quest
                 showDownloadIcon: false,
               }}
             >
-              {fileList.length < 1 && '+ Upload'}
+              {fileList.length < 1 && '+ Tải lên'}
             </Upload>
           </ImgCrop>
         </>
       )}
       {isEditing && (
-         <ButtonContainer>
+        <ButtonContainer>
           <ConfirmButton type="primary" onClick={handleConfirm}>
-            Confirm
+            Xong
           </ConfirmButton>
           <CancelButton type="default" onClick={handleCancel}>
-            Cancel
+            Hủy
           </CancelButton>
         </ButtonContainer>
       )}
-      {!isEditing && imageUrl !== null && <img src={imageUrl} width={50} height={50} alt="Uploaded"/>}
+      {!isEditing && currentImageUrl && <img src={currentImageUrl} width={50} height={50} alt="Uploaded" />}
     </QuestionContainer>
   );
 };

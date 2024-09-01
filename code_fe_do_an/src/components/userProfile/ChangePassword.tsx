@@ -4,6 +4,11 @@ import { Input } from "../ui/input";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "@/hook/AuthContext";
+import { notification } from "antd";
+import {
+  CheckCircleOutlined,
+  ExclamationCircleOutlined,
+} from "@ant-design/icons";
 
 export default function ChangePassword() {
   const [showPassword, setShowPassword] = useState(false);
@@ -27,6 +32,9 @@ export default function ChangePassword() {
 
     if (!currentPassword) {
       newErrors.currentPassword = "Nhập mật khẩu hiện tại";
+      isValid = false;
+    } else if (currentPassword.length < 8) {
+      newErrors.currentPassword = "Mật khẩu có tối thiểu 8 ký tự";
       isValid = false;
     }
 
@@ -71,16 +79,26 @@ export default function ChangePassword() {
 
      const response = request.data;
       if (response.statusCode === 200) {
-        alert(response.data.message);
+        notification.open({
+          message: "",
+          description: response.data.message,
+          icon: <CheckCircleOutlined style={{ color: "#52c41a" }} />, // Green tick
+          placement: "topRight",
+        });
         setCurrentPassword("");
         setNewPassword("");
         setReNewPassword("");
         setErrors({ currentPassword: "", newPassword: "", reNewPassword: "" });
       } else {
-        alert(response.data);
+         notification.open({
+           message: "",
+           description: response.data,
+           icon: <ExclamationCircleOutlined style={{ color: "#ff4d4f" }} />, // Red exclamation
+           placement: "topRight",
+         });
       }
     } catch (error) {
-      alert("Fail to change password");
+      alert("Error");
     }
   };
 
@@ -127,7 +145,7 @@ export default function ChangePassword() {
           <Input
             type={showNewPassword ? "text" : "password"}
             className="w-full"
-            placeholder="Tói thiểu 8 ký tự"
+            placeholder="Tối thiểu 8 ký tự"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
           />

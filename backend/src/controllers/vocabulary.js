@@ -132,20 +132,23 @@ async function deleteVocabById(req, res) {
 
 async function generatePracticeData(req, res) {
     try {
-        const { vocabularyIds } = req.body;
+		const { vocabularyIds } = req.body;
+
 
         // Fetch vocabulary entries based on provided IDs
         let vocabEntries = await Vocabulary.findAll({
             where: { vocab_id: vocabularyIds }
-        });
-
+		});
+		
+ 		// If there are fewer than 4 kanji entries, fetch additional kanji entries from the database
+        let all_vocabulary = vocabEntries;
         // If there are fewer than the provided vocabulary entries, fetch additional random vocabulary entries
         if (vocabEntries.length < 4) {
             const additionalVocabEntries = await Vocabulary.findAll({
                 where: { vocab_id: { [Op.notIn]: vocabularyIds } },
                 limit: 10
             });
-            vocabEntries = vocabEntries.concat(additionalVocabEntries);
+           all_vocabulary  = vocabEntries.concat(additionalVocabEntries);
         }
 
         // Ensure each vocabulary entry generates a question
@@ -157,22 +160,22 @@ async function generatePracticeData(req, res) {
                 const questionType = Math.floor(Math.random() * 7);
                 switch (questionType) {
                     case 0:
-                        question = createImageQuestion(vocab, vocabEntries);
+                        question = createImageQuestion(vocab, all_vocabulary);
                         break;
                     case 1:
-                        question = createMeaningQuestion(vocab, vocabEntries);
+                        question = createMeaningQuestion(vocab, all_vocabulary);
                         break;
                     case 2:
-                        question = createKanjiQuestion(vocab, vocabEntries);
+                        question = createKanjiQuestion(vocab, all_vocabulary);
 						break;
 					case 3:
-                        question = createImageQuestion(vocab, vocabEntries);
+                        question = createImageQuestion(vocab, all_vocabulary);
 						break;
 					case 4:
-                        question = createImageQuestion(vocab, vocabEntries);
+                        question = createImageQuestion(vocab, all_vocabulary);
 						break;
 					case 5:
-                        question = createImageQuestion(vocab, vocabEntries);
+                        question = createImageQuestion(vocab, all_vocabulary);
 						break;
 					default:
 						break;
@@ -182,13 +185,12 @@ async function generatePracticeData(req, res) {
             return question;
 		}).filter(question => question);
 	
-
         // Ensure the number of questions matches the number of vocabulary entries
         if (questions.length < vocabularyIds.length) {
             return notfound(res, 500, "Failed to generate sufficient questions");
         }
 
-        // Return the questions with a successful HTTP status
+		// Return the questions with a successful HTTP status
         return responseWithData(res, 200, questions);
     } catch (error) {
         console.error("Error generating practice data:", error);

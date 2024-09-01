@@ -10,9 +10,12 @@ import {
 import { useAuth } from "@/hook/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { NotificationArea } from "./NotificationArea";
+import { useState } from "react";
+
 export function UserDropDown() {
   const auth = useAuth();
-  const {handleLogout} = auth
+  const { user, handleLogout } = auth
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatar || null);
   const navigate = useNavigate();
   const handleUserProfile = () => {
     navigate("/userProfile");
@@ -24,7 +27,7 @@ export function UserDropDown() {
       <DropdownMenu>
         <DropdownMenuTrigger>
           <Avatar>
-            <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+            <AvatarImage  src={avatarPreview || "https://github.com/shadcn.png"} alt="@shadcn" />
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
         </DropdownMenuTrigger>

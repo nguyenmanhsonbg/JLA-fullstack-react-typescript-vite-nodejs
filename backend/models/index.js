@@ -60,12 +60,6 @@ db["KanjiWord"].belongsTo(db["Kanji"], { foreignKey: "kanji_id" });
 db["Day"].hasMany(db["Video"], { foreignKey: "day_id" });
 db["Video"].belongsTo(db["Day"], { foreignKey: "day_id" });
 
-db["Video"].hasMany(db["VideoQuestion"], { foreignKey: "video_id" });
-db["VideoQuestion"].belongsTo(db["Video"], { foreignKey: "video_id" });
-
-db["VideoQuestion"].hasMany(db["VideoOption"], { foreignKey: "video_question_id" });
-db["VideoOption"].belongsTo(db["VideoQuestion"], { foreignKey: "video_question_id" });
-
 db["Day"].hasMany(db["Vocabulary"], { foreignKey: "day_id" });
 db["Vocabulary"].belongsTo(db["Day"], { foreignKey: "day_id" });
 

@@ -87,7 +87,6 @@ export default function Vocabulary() {
         const vocabularyIds = _dayCurrent?.lessons
           ?.filter((lesson) => lesson.vocab_id !== undefined)
           ?.map((lesson) => lesson.vocab_id);
-
         setDayCurrent(_dayCurrent);
         setCurrentDayVocabularyIds(vocabularyIds);
       }
@@ -132,6 +131,7 @@ export default function Vocabulary() {
       await axios.post('/update-all-vocabulary-learned', {
         accountId: JSON.parse(userEncode)?.account_id,
         vocabularyIds: currentDayVocabularyIds,
+        dayId: day_id
       }, {
         headers: {
           Authorization: token,
@@ -191,6 +191,7 @@ export default function Vocabulary() {
     };
 
     const fetchPracticalData = async () => {
+      console.log("fetch practical data for:" + currentDayVocabularyIds);
       try {
         const userEncode = localStorage.getItem("user");
         const token = userEncode ? JSON.parse(userEncode)?.token : '';
@@ -278,7 +279,7 @@ export default function Vocabulary() {
                     data-index={index}
                   >
                     <Card>
-                      <CardContent className={`flex flex-row px-16 pt-10 h-[670px] w-[1200px] ${isAllLearned ? 'bg-[#e0f7fa]' : 'bg-[#f2fae9]'}`}>
+                      <CardContent className={`flex flex-row px-16 pt-10 h-[670px] w-[1200px] bg-[#f2fae9]`}>
                         <div className="flex flex-col gap-9 basis-2/5">
                           <div className="text-2xl text-[#7db660] font-semibold">
                             Từ vựng{" "}

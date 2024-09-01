@@ -127,6 +127,7 @@ export default function GrammarDetail() {
       const request = await axios.post('/update-grammar-learned', {
         accountId: accountId,
         grammarId: grammar_id,
+        dayId: day_id
       }, {
         headers: {
           Authorization: token,
@@ -230,8 +231,8 @@ export default function GrammarDetail() {
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
-          <div className={`w-[1200px] h-[700px] ml-28 mt-5 rounded-lg flex flex-col gap-5 pb-5 ${isLearned ? 'bg-[#e0f7fa]' : 'bg-[#d1eeb0]'}`}>
-            <div className={`basis-[10%] rounded-t-md flex flex-row justify-between items-center px-10 ${isLearned ? 'bg-[#00796b]' : 'bg-[#4b9c47]'}`}>
+          <div className={`w-[1200px] h-[700px] ml-28 mt-5 rounded-lg flex flex-col gap-5 pb-5  bg-[#d1eeb0]`}>
+            <div className={`basis-[10%] rounded-t-md flex flex-row justify-between items-center px-10 bg-[#4b9c47]`}>
               <div className="flex items-center justify-center text-xl text-white">
                 {grammarCurrent.grammar_name}
               </div>

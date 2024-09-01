@@ -27,11 +27,7 @@ module.exports = (sequelize, DataTypes) => {
 					model: "status",
 					key: "status_id",
 				},
-			},
-			repeat_lesson: {
-				type: DataTypes.TEXT,
-				allowNull: true,
-			},
+			},			
 		},
 		{
 			tableName: "day",

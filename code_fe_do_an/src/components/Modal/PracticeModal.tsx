@@ -166,7 +166,7 @@ const PracticeModal = ({ title, practiceData, isModalVisible, onSubmit, onClose,
               </div>
             ) : (
               <div className="try-again">
-                <h2 className="text-2xl font-bold mb-4">Trượt rồi</h2>
+                <h2 className="text-2xl font-bold mb-4">Không chính xác! Hãy thử lại</h2>
                 <p className="text-lg mb-4">Bạn đã trả lời đúng {correctAnswersCount} câu hỏi. Bạn cần trả lời đúng ít nhất {passThreshold} câu để hoàn thiện bài luyện tập.</p>
               </div>
             )}

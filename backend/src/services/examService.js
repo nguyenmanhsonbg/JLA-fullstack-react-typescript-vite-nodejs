@@ -1,78 +1,10 @@
 const { Exam, Course, CourseExam } = require('../../models');
+const { notfound,ok, error } = require('../handlers/response_handler');
 
 
   async function createExam(examData) {
     const exam = await Exam.create(examData);
     return exam;
-}
-  
-async function progressExam(examId, accountId, userAnswers) {
-  // Fetch the exam data including correct answers
-  const exam = await Exam.findByPk(examId, {
-    include: ['readingQuestions', 'listeningQuestions', 'multiChoiceQuestions']
-  });
-
-  if (!exam) {
-    throw new Error('Exam not found');
-  }
-
-  let correctAnswersCount = 0;
-  const totalQuestionsCount = Object.keys(userAnswers).length;
-
-  // Calculate score and construct content with correct answers
-  const content = {
-    examTitle: exam.exam_name,
-    examData: {
-      readingQuestions: exam.readingQuestions.map(question => ({
-        ...question.toJSON(),
-        subQuestions: question.subQuestions.map(subQuestion => {
-          const isCorrect = subQuestion.correctOptionId === userAnswers[subQuestion.id];
-          if (isCorrect) correctAnswersCount++;
-          return {
-            ...subQuestion.toJSON(),
-            userAnsweredId: userAnswers[subQuestion.id],
-            correctOptionId: subQuestion.correctOptionId
-          };
-        })
-      })),
-      listeningQuestions: exam.listeningQuestions.map(question => ({
-        ...question.toJSON(),
-        subQuestions: question.subQuestions.map(subQuestion => {
-          const isCorrect = subQuestion.correctOptionId === userAnswers[subQuestion.id];
-          if (isCorrect) correctAnswersCount++;
-          return {
-            ...subQuestion.toJSON(),
-            userAnsweredId: userAnswers[subQuestion.id],
-            correctOptionId: subQuestion.correctOptionId
-          };
-        })
-      })),
-      multiChoiceQuestions: exam.multiChoiceQuestions.map(question => {
-        const isCorrect = question.correctOptionId === userAnswers[question.id];
-        if (isCorrect) correctAnswersCount++;
-        return {
-          ...question.toJSON(),
-          userAnsweredId: userAnswers[question.id],
-          correctOptionId: question.correctOptionId
-        };
-      })
-    }
-  };
-
-  // Calculate score
-  const score = (correctAnswersCount / totalQuestionsCount) * 100;
-
-  // Create exam history
-  const examHistoryData = {
-    exam_id: examId,
-    account_id: accountId,
-    content: JSON.stringify(content),
-    score: score
-  };
-
-  const examHistory = await createExamHistory(examHistoryData);
-
-  return { content, score };
 }
 
   async function getAllExams() {
@@ -122,22 +54,40 @@ async function getExamWithoutAnswerById(examId) {
 }
 
 
-  async function updateExam(examId, updatedData) {
-    const exam = await Exam.findByPk(examId);
-    if (!exam) {
-      throw new Error('Exam not found');
-    }
-    await exam.update(updatedData);
-    return exam;
+async function updateExam(examId, updatedData) {
+  console.log("Updating exam for exam ID:", examId);
+  console.log("Updated Data:", JSON.stringify(updatedData));
+
+  // Find the exam by the correct exam_id key
+  const exam = await Exam.findOne({
+    where: { exam_id: examId },
+  });
+
+  if (!exam) {
+    throw new Error('Exam not found');
   }
 
+  // Update both exam_name and questions fields
+  await exam.update({
+    exam_name: updatedData.exam_data.exam_name,
+    questions: updatedData.exam_data.questions,
+  });
+  
+  return exam;
+}
+
   async function deleteExam(examId) {
-    const exam = await Exam.findByPk(examId);
-    if (!exam) {
-      throw new Error('Exam not found');
+    try {
+      const exam = await Exam.findByPk(examId);
+		if (!exam) {
+			return notfound(res, "Không tìm thấy bài kiểm tra!");
+		}
+    exam.exam_status_id = 3;
+		await exam.save();
+		return ok(res, "Xóa bài kiểm tra thành công");
+    } catch (err) {
+      return error(res);
     }
-    await exam.destroy();
-    return exam;
   }
 
   async function assignExamToCourse(examId, courseId) {

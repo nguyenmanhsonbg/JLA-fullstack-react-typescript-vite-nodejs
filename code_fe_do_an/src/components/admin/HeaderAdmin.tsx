@@ -2,15 +2,26 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { faBell } from "@fortawesome/free-solid-svg-icons";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
+import { useAuth } from "@/hook/AuthContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
+import { useState, useEffect } from "react";
 
 export default function HeaderAdmin() {
+  const { user } = useAuth();
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatar || null);
+
+
+   useEffect(() => {
+     if (user.avatar) {
+       console.log(user.avatar);
+      setAvatarPreview(user.avatar);
+    }
+  }, [user.avatar]);
   return (
     <div
       style={{ backgroundColor: "#FFF8E1" }}
@@ -36,7 +47,7 @@ export default function HeaderAdmin() {
               <DropdownMenuTrigger asChild>
                 <Avatar>
                   <AvatarImage
-                    src="https://github.com/shadcn.png"
+                    src={avatarPreview || "https://github.com/shadcn.png"}
                     alt="@shadcn"
                   />
                   <AvatarFallback>CN</AvatarFallback>

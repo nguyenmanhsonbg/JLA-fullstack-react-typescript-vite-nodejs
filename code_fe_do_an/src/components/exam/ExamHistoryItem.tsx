@@ -15,17 +15,17 @@ const ExamHistoryItem = ({ exam, onClickDetail }) => {
 
   return (
     <Card className="m-8">
-      <CardContent className="p-8 bg-white rounded-lg shadow-md relative">
-        <div className="flex justify-between items-center">
+      <CardContent className="relative p-8 bg-white rounded-lg shadow-md">
+        <div className="flex items-center justify-between">
           <div>
-            <div className="text-xl font-bold mb-2">{exam.examTitle}</div>
-            <div className="text-md mb-2">Created Time: {new Date(exam.createdTime).toLocaleString()}</div>
-            <div className="text-md mb-2">Score: {exam.score}%</div>
+            <div className="mb-2 text-xl font-bold">{exam.examTitle}</div>
+            <div className="mb-2 text-md">Ngày làm: {new Date(exam.createdTime).toLocaleString()}</div>
+            <div className="mb-2 text-md">Điểm: {exam.score}%</div>
             <button
-              className="mt-4 p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition-all duration-300"
+              className="p-2 mt-4 text-white transition-all duration-300 bg-blue-500 rounded-lg hover:bg-blue-700"
               onClick={() => onClickDetail(exam.examHistoryId)}
             >
-              View Detailed
+              Xem chi tiết
             </button>
           </div>
           <button onClick={handleToggleCollapse} className="text-2xl">

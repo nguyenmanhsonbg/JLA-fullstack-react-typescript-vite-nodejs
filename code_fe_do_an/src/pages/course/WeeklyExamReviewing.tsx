@@ -114,7 +114,7 @@ export default function WeeklyExamReviewing() {
                 </BreadcrumbPage>
                 <BreadcrumbSeparator />
                 <BreadcrumbPage className="text-2xl font-semibold">
-                  Weekly Exam Reviewing
+                  Xem lại bài kiểm tra tổng hợp
                 </BreadcrumbPage>
               </BreadcrumbList>
             </Breadcrumb>
@@ -123,7 +123,7 @@ export default function WeeklyExamReviewing() {
           <div className="flex justify-center w-full mt-7">
             <div className="w-full max-w-6xl max-h-[800px] overflow-y-auto bg-white rounded-lg shadow-lg p-6 border-2">
               {loading ? (
-                <div className="flex justify-center items-center h-full">
+                <div className="flex items-center justify-center h-full">
                   <Spin size="large" />
                 </div>
               ) : examData ? (

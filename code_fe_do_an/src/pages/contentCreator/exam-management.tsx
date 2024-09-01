@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Table, message } from 'antd';
+import { Button, Table, message, Tooltip } from 'antd';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { FaRegEye } from 'react-icons/fa';
-import { CiEdit } from 'react-icons/ci';
-import { MdDeleteOutline } from 'react-icons/md';
-import { AiOutlineFileAdd } from 'react-icons/ai';
+import { FaEye } from 'react-icons/fa';
+import { FiEdit } from 'react-icons/fi';
+import { RiDeleteBin6Line } from 'react-icons/ri';
+import { AiOutlinePlus } from 'react-icons/ai';
 import { useAuth } from '@/hook/AuthContext';
 
 interface Exam {
@@ -36,8 +36,7 @@ const ExamManagementPage: React.FC = () => {
         },
       });
 
-        if (request.status === 200) {
-       
+      if (request.status === 200) {
         setExams(request.data.data.data); // Ensure data is an array
       } else {
         setExams([]);
@@ -52,9 +51,7 @@ const ExamManagementPage: React.FC = () => {
     if (reload) {
       getAllExams();
       setReload(false);
-      }
-      
-    //   console.log(exams);
+    }
   }, [reload]);
 
   const handleDeleteExam = async (id: number) => {
@@ -75,65 +72,62 @@ const ExamManagementPage: React.FC = () => {
 
   const columns = [
     {
-      title: "Exam Name",
+      title: "Tên bài kiểm tra",
       dataIndex: "exam_name",
       key: "exam_name",
     },
-    {
-      title: "Reading Questions",
-      key: "readingQuestions",
-      render: (text, record: Exam) => (
-        <ul>
-          {record.questions.readingQuestions.map((q: any) => (
-            <li key={q.id}>{q.content}</li>
-          ))}
-        </ul>
-      ),
-    },
-    {
-      title: "Listening Questions",
-      key: "listeningQuestions",
-      render: (text, record: Exam) => (
-        <ul>
-          {record.questions.listeningQuestions.map((q: any) => (
-            <li key={q.id}>{q.type}</li>
-          ))}
-        </ul>
-      ),
-    },
-    {
-      title: "Multi-choice Questions",
+     {
+      title: "Câu hỏi nhiều lựa chọn",
       key: "multiChoiceQuestions",
       render: (text, record: Exam) => (
-        <ul>
-          {record.questions.multiChoiceQuestions.map((q: any) => (
-            <li key={q.id}>{q.content}</li>
-          ))}
-        </ul>
+        <div>{record.questions.multiChoiceQuestions.length}</div>
       ),
     },
     {
-      title: "Actions",
+      title: "Câu hỏi bài đọc",
+      key: "readingQuestions",
+      render: (text, record: Exam) => (
+        <div>{record.questions.readingQuestions.length}</div>
+      ),
+    },
+    {
+      title: "Câu hỏi bài nghe",
+      key: "listeningQuestions",
+      render: (text, record: Exam) => (
+        <div>{record.questions.listeningQuestions.length}</div>
+      ),
+    },
+    {
+      title: "Hành động",
       key: "actions",
       render: (_: any, record: Exam) => (
         <div className="flex flex-row gap-2">
-          <FaRegEye size={24} color="#2E75B5"
-            onClick={() => {
-              navigate(`/admin/exam-management/${record.exam_id}`, {
-                state: { mode: "view" },
-              });
-            }}
-          />
-          <CiEdit size={24} color="#feb32a"
-            onClick={() => {
-              navigate(`/admin/exam-management/${record.exam_id}`);
-            }}
-          />
-          <MdDeleteOutline size={24} color="red"
-            onClick={() => {
-              handleDeleteExam(record.exam_id);
-            }}
-          />
+          <Tooltip title="View Exam">
+            <FaEye size={20} color="#4CAF50"
+              onClick={() => {
+                navigate(`/contentCreator/exam-management/view/${record.exam_id}`, {
+                  state: { mode: "view" },
+                });
+              }}
+              style={{ cursor: 'pointer' }}
+            />
+          </Tooltip>
+          <Tooltip title="Edit Exam">
+            <FiEdit size={20} color="#FFC107"
+              onClick={() => {
+                navigate(`/contentCreator/exam-management/edit/${record.exam_id}`);
+              }}
+              style={{ cursor: 'pointer' }}
+            />
+          </Tooltip>
+          <Tooltip title="Delete Exam">
+            <RiDeleteBin6Line size={20} color="#F44336"
+              onClick={() => {
+                handleDeleteExam(record.exam_id);
+              }}
+              style={{ cursor: 'pointer' }}
+            />
+          </Tooltip>
         </div>
       ),
     },

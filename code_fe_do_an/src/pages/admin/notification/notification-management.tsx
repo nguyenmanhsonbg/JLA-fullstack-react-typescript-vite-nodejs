@@ -58,7 +58,7 @@ export default function NotiManagementPage() {
 
   const [toast, contextHolder] = notification.useNotification() // TODO: update this notification for global use later
 
-  const PAGE_LIMIT = 10
+  const PAGE_LIMIT = 5
   const columns = [
     {
       title: "Id",
@@ -67,48 +67,48 @@ export default function NotiManagementPage() {
       render: (text: string) => <a>{text}</a>,
     },
     {
-      title: "Title",
+      title: "Tiêu đề",
       dataIndex: "title",
       key: "title",
       render: (text: string) => <span>{text}</span>,
     },
     {
-      title: "Content",
+      title: "Nội dung",
       dataIndex: "content",
       key: "content",
       render: (text: string) => <span>{text}</span>,
     },
     {
-      title: "Notify date",
+      title: "Ngày thông báo",
       dataIndex: "noti_date",
       key: "noti_date",
       width: '8%',
       render: (date: Date) => <span>{convertDateToString(date)}</span>,
     },
     {
-      title: "Status",
+      title: "Trạng thái",
       dataIndex: "noti_date",
       key: "noti_date",
       width: '6%',
-      render: (date: Date) => <span>{(new Date(date) < new Date()) ? 'Sent' : 'Not send'}</span>,
+      render: (date: Date) => <span>{(new Date(date) < new Date()) ? 'Đã gửi' : 'Chưa gửi'}</span>,
     },
     {
-      title: "Action",
+      title: "Hành động",
       key: "action",
       width: '12%',
       render: (_value: any, record: Notification) => {
         return (
           <section className={`${(new Date(record.noti_date) < new Date()) ? 'invisible' : 'visible'}`}>
-            <Button color="warning" className="mr-4 font-medium" onClick={() => openUpdateNoti(record)}>EDIT</Button>
+            <Button color="warning" className="mr-4 font-medium" onClick={() => openUpdateNoti(record)}>Sửa</Button>
             <Popconfirm
-              title={`Delete notification`}
-              description={`Are you sure you want to delete this notification ?`}
+               title={``}
+              description={`Bạn có muốn xóa thông báo này ?`}
               onConfirm={() => deleteNoti(record.noti_id)}
-              okText="Delete"
-              cancelText="Cancel"
+              okText="Xóa"
+              cancelText="Không xóa"
               okButtonProps={{danger: true}}
             >
-              <Button danger className="font-medium">DELETE</Button>
+              <Button danger className="font-medium">Xóa</Button>
             </Popconfirm>
           </section>
         );
@@ -130,7 +130,7 @@ export default function NotiManagementPage() {
       next_page,
       limit
     }
-    axios.post('/noti/findById', fetchNotiPayload)
+    axios.post('/getNoti', fetchNotiPayload)
       .then(res => {
         const data : NofiFetchResponse = res.data.data.data
         setNotifications(data.data)
@@ -138,7 +138,7 @@ export default function NotiManagementPage() {
         setTotalPages(data.total_pages)
       }).catch(err => {
         pushScreenNoti('Can not get notifications', 'error')
-        console.error('Can not get notifications: ', err)
+        //console.error('Can not get notifications: ', err)
       }).finally(() => {
         setLoading(false)
       })
@@ -163,7 +163,7 @@ export default function NotiManagementPage() {
         noti_date: convertDateToString(tmpNotification.noti_date, true)
       }
       
-      const request = await axios.post("/noti", createNotiPayload , {
+      const request = await axios.post("/createNoti", createNotiPayload , {
         headers: {
           Authorization: token,
         },
@@ -181,7 +181,40 @@ export default function NotiManagementPage() {
       return false
     }
   }
+const updateNoti = async () => {
+  try {
+    let token = "";
+    const userEncode = localStorage.getItem("user");
+    if (userEncode) {
+      const userDecode = JSON.parse(userEncode);
+      token = userDecode?.token;
+    }
 
+    const createNotiPayload = {
+      noti_id: tmpNotification.noti_id,
+      title: tmpNotification.title,
+      content: tmpNotification.content,
+      noti_date: convertDateToString(tmpNotification.noti_date, true),
+    };
+
+    const request = await axios.put("/updateNoti", createNotiPayload, {
+      headers: {
+        Authorization: token,
+      },
+    });
+    const response = request.data;
+    if ([201, 200].includes(response.statusCode)) {
+      pushScreenNoti(response.data.message, "success");
+      return true;
+    }
+
+    return false;
+  } catch (error) {
+    pushScreenNoti("Can not update notification", "error");
+    console.error("Can not update notification", error);
+    return false;
+  }
+};
   const deleteNoti = async (id: number) => {
     try {
       let token = "";
@@ -195,7 +228,7 @@ export default function NotiManagementPage() {
         ids: [id],
       }
 
-      const request = await axios.post("/noti/delete", deleteNotiPayload, {
+      const request = await axios.post("/deleteNoti", deleteNotiPayload, {
         headers: {
           Authorization: token,
         },
@@ -222,10 +255,13 @@ export default function NotiManagementPage() {
 
     setLoading(true);
 
-    const isCreateNotiSuccess = await createNoti()
+    // 
+    const isOperationSuccessful = tmpNotification.noti_id
+      ? await updateNoti()
+      : await createNoti();
 
-    if(isCreateNotiSuccess) {
-      fetchNoti()
+    if (isOperationSuccessful) {
+      fetchNoti();
     }
 
     setLoading(false)
@@ -239,7 +275,7 @@ export default function NotiManagementPage() {
   }
 
   const handleChangePageNoti = (page: number, pageSize: number) => {
-    fetchNoti('all', page, pageSize)
+    fetchNoti('allWithUnsent', page, pageSize)
   }
 
   const openUpdateNoti = (noti : Notification) => {
@@ -254,49 +290,47 @@ export default function NotiManagementPage() {
       message,
     });
   };
-
+ 
   return (
     <div className="notification-page h-full">
-        {contextHolder}
-        <Spin
-          fullscreen
-          size="large"
-          spinning={loading}
+      {contextHolder}
+      <Spin fullscreen size="large" spinning={loading} />
+      <Typography.Title level={2} className="text-center">
+        Quản lý thông báo
+      </Typography.Title>
+      <section className="notification-content h-full">
+        <Table
+          className="notication-content__list"
+          dataSource={notifications}
+          columns={columns}
+          pagination={false}
         />
-        <Typography.Title level={2} className="text-center">Notification management</Typography.Title>
-        <section className="notification-content h-full">
-            <Table 
-              className="notication-content__list"
-              dataSource={notifications}
-              columns={columns}
-              pagination={false}
-            />
-            <Pagination
-              className="mt-4"
-              align="center"
-              current={activePage}
-              total={totalPages * PAGE_LIMIT}
-              onChange={handleChangePageNoti}
-            />
-        </section>
-        <Modal
-          open={openModifyNotiDialog}
-          onOk={handleSubmitCreateNoti}
-          onCancel={handleCancelCreateNoti}
-          title="Update notification"
-          centered
-          confirmLoading={loading}
-          maskClosable={false}
-          destroyOnClose={true}
-          okText="Update"
-        >
-          <NotificationModifier
-            loading={loading}
-            notification={tmpNotification}
-            handleChangeNoti={newNoti => setTmpNotification(newNoti)}
-          />
-        </Modal>
-
+        <Pagination
+          className="mt-4"
+          align="center"
+          current={activePage}
+          total={totalPages * PAGE_LIMIT}
+          pageSize={PAGE_LIMIT}
+          onChange={handleChangePageNoti}
+        />
+      </section>
+      <Modal
+        open={openModifyNotiDialog}
+        onOk={handleSubmitCreateNoti}
+        onCancel={handleCancelCreateNoti}
+        title="Update notification"
+        centered
+        confirmLoading={loading}
+        maskClosable={false}
+        destroyOnClose={true}
+        okText="Update"
+      >
+        <NotificationModifier
+          loading={loading}
+          notification={tmpNotification}
+          handleChangeNoti={(newNoti) => setTmpNotification(newNoti)}
+        />
+      </Modal>
     </div>
   );
 }

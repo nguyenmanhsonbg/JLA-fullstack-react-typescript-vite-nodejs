@@ -65,7 +65,7 @@ function AddDayModal({
   }, [weekData]);
   return (
     <Modal
-      title={id && daySelected ? "Update Day" : "Add New Day"}
+      title={id && daySelected ? "Cập nhật ngày học" : "Thêm ngày học mới"}
       visible={visible}
       onCancel={onCancel}
       footer={null}
@@ -74,15 +74,15 @@ function AddDayModal({
       <Form form={form}>
         <Form.Item
           name="day_name"
-          label="Day Name"
-          rules={[{ required: true, message: "Day Name is required!" }]}
+          label="Tên ngày học :"
+          rules={[{ required: true, message: "Hãy nhập tên ngày học" }]}
         >
           <Input
             value={dayTitle}
             onChange={(e) => setDayTitle(e.target.value)}
           />
         </Form.Item>
-        <Form.Item>
+        {/* <Form.Item>
           <Typography>Repeat Day:</Typography>
           <Flex style={{ flexDirection: "column" }}>
             {repeatData.map((repeat, pos) => {
@@ -156,10 +156,10 @@ function AddDayModal({
               );
             })}
           </Flex>
-        </Form.Item>
+        </Form.Item> */}
         <Form.Item>
           <Button type="primary" onClick={onSubmit}>
-            {id && daySelected ? "Update" : "Add"}
+            {id && daySelected ? "Cập nhật" : "Thêm"}
           </Button>
         </Form.Item>
       </Form>

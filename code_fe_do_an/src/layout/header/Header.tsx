@@ -3,9 +3,11 @@ import Logo from "../Logo";
 import LoginButton from "./LoginButton";
 import { Nav } from "./Nav";
 import { UserDropDown } from "./UserDropDown";
+import { useState } from "react";
 
 export default function Header() {
   const auth = useAuth();
+
   if (window.innerWidth >1000)
      return (
        <div className="w-screen h-28">

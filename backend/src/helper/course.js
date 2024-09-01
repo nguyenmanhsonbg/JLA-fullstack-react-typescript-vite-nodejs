@@ -17,10 +17,10 @@ function transformCourseData(courseData) {
 				});
 				day.Videos = sortByKey(day.Videos, "video_id");
 				day.Videos.forEach((video) => {
-					video.VideoQuestions = sortByKey(video.VideoQuestions, "question_id");
-					video.VideoQuestions.forEach((question) => {
-						question.VideoOptions = sortByKey(question.VideoOptions, "option_id");
-					});
+					// video.VideoQuestions = sortByKey(video.VideoQuestions, "question_id");
+					// video.VideoQuestions.forEach((question) => {
+					// 	question.VideoOptions = sortByKey(question.VideoOptions, "option_id");
+					// });
 				});
 				day.Vocabularies = sortByKey(day.Vocabularies, "vocabulary_id");
 			});
@@ -92,29 +92,39 @@ function transformCourseData(courseData) {
 					type: "grammar",
 				});
 			});
-			// Video lessons
+
+			//Video lessons
 			day.Videos.filter(
 				(item) => item.video_status_id === 2 || item.video_status_id === 1,
 			).forEach((video) => {
-				const questions = video.VideoQuestions.filter(
-					(item) => item.video_question_status_id === 2 || item.video_question_status_id === 1,
-				).map((question) => ({
-					video_question_id: question.video_question_id,
-					question_content: question.question_content,
-					question_answer: question.question_answer,
-					options: question.VideoOptions.filter(
-						(item) => item.video_option_status_id === 2 || item.video_option_status_id === 1,
-					).map((option) => ({
-						option_content: option.option_content,
-						option_id: option.option_id,
-					})),
-				}));
+				// const questions = video.VideoQuestions.filter(
+				// 	(item) => item.video_question_status_id === 2 || item.video_question_status_id === 1,
+				// ).map((question) => ({
+				// 	video_question_id: question.video_question_id,
+				// 	question_content: question.question_content,
+				// 	question_answer: question.question_answer,
+				// 	options: question.VideoOptions.filter(
+				// 		(item) => item.video_option_status_id === 2 || item.video_option_status_id === 1,
+				// 	).map((option) => ({
+				// 		option_content: option.option_content,
+				// 		option_id: option.option_id,
+				// 	})),
+				// }));
+
+				// lessons.push({
+				// 	video_id: video.video_id,
+				// 	video_link: video.video_link,
+				// 	video_name: video.video_name,
+				// 	day_id: day.day_id,
+				// 	questions,
+				// 	type: "video",
+				// });
+			
 				lessons.push({
 					video_id: video.video_id,
 					video_link: video.video_link,
 					video_name: video.video_name,
 					day_id: day.day_id,
-					questions,
 					type: "video",
 				});
 			});
@@ -133,7 +143,7 @@ function transformCourseData(courseData) {
 			week_id: week.week_id,
 			week_name: week.week_name,
 			week_topic: week.week_topic,
-			course_id: courseData.course_id, // Assuming this is not needed as per your structure
+			course_id: courseData.course_id, 
 			week_status_id: week.week_status_id,
 			days,
 		};
@@ -146,6 +156,9 @@ function transformCourseData(courseData) {
 		course_image: courseData.course_image,
 		course_status_id: courseData.course_status_id,
 		week: courseData.week.toString(),
+		course_note: courseData.course_note,
+		course_level: courseData.course_level,
+		course_skill: courseData.course_skill
 	};
 
 	return { weekData: transformedWeeks, courseData: courseDetails };

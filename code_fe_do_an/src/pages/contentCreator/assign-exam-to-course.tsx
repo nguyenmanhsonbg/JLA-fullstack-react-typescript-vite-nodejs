@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button, Form, Select, message } from 'antd';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hook/AuthContext';
-
+import { useAuth } from '../../hook/AuthContext'
 
 const { Option } = Select;
 
@@ -131,6 +130,7 @@ const AssignWeeklyExamToCourse: React.FC = () => {
         token = userDecode?.token;
         accountId = userEncode ? JSON.parse(userEncode)?.account_id : null;
       }
+
       const request = await axios.post(`/assign`, {
         account_id: accountId,
         course_id: selectedCourse,
@@ -147,7 +147,8 @@ const AssignWeeklyExamToCourse: React.FC = () => {
       }
     } catch (error) {
       message.error('Failed to save exam.');
-      navigate('/error', { state: { message: error.message } });
+      // navigate('/error', { state: { message: error.message } });
+      console.log(error);
     }
   };
 
@@ -157,7 +158,7 @@ const AssignWeeklyExamToCourse: React.FC = () => {
       <Form layout="vertical">
         <Form.Item label="Lựa chọn khóa học">
           <Select
-            placeholder="Select a course"
+            placeholder="Chọn khóa học"
             onChange={(value) => setSelectedCourse(value as number)}
           >
             {courses.map(course => (
@@ -170,7 +171,7 @@ const AssignWeeklyExamToCourse: React.FC = () => {
         {selectedCourse && (
           <Form.Item label="Lựa chọn tuần">
             <Select
-              placeholder="Select a week"
+              placeholder="Chọn tuần"
               onChange={(value) => setSelectedWeek(value as number)}
             >
               {weeks.map(week => (
@@ -184,7 +185,7 @@ const AssignWeeklyExamToCourse: React.FC = () => {
         {selectedWeek && (
           <Form.Item label="Lựa chọn bài kiểm tra">
             <Select
-              placeholder="Select an exam"
+              placeholder="Chọn bài kiểm tra"
               onChange={(value) => setSelectedExam(value as number)}
             >
               {exams.map(exam => (

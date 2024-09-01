@@ -15,7 +15,7 @@ import Notification from "@/components/ui/notification";
 // Định nghĩa schema với Zod
 const emailSchema = z
   .string()
-  .email({ message: "Email không hợp lệ" })
+  .email({ message: "Không được để trống" })
   .refine((val) => val.endsWith("@gmail.com"), {
     message: "Email phải kết thúc bằng đuôi @gmail.com",
   });
@@ -93,6 +93,12 @@ export default function Login() {
           setNotification({ message: 'Đăng nhập thành công', type: 'success' });
           if (result.role_id === 1) {
             navigate("/admin");
+          } else if (result.role_id === 2) {
+            navigate("/contentManager");
+          } else if (result.role_id === 3) {
+            navigate("/contentCreator");
+          } else {
+            navigate("/");
           }
         }, 2000);
       } else {
@@ -196,8 +202,8 @@ export default function Login() {
           >
             Đăng nhập
           </Button>
-          <div className="text-center">Hoặc</div>
-          <GoogleButton />
+          {/* <div className="text-center">Hoặc</div>
+          <GoogleButton /> */}
         </div>
       </div>
       <div className="basis-3/6">

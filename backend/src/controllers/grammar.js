@@ -148,7 +148,7 @@ async function generateGrammarPracticeData(req, res) {
         // Return the questions with a successful HTTP status
         return responseWithData(res, 200, questions);
     } catch (error) {
-        console.error("Error generating grammar practice data:", error);
+        //console.error("Error generating grammar practice data:", error);
         return responseWithError(res, 500, "Failed to generate grammar practice data");
     }
 }
@@ -160,7 +160,7 @@ function createGrammarQuestion(grammar, allGrammars) {
     if (options.length < 4) return null;
 
     return {
-        question: `What does the grammar structure "${grammar.grammar_structure}" mean?`,
+        question: `Ngữ pháp "${grammar.grammar_structure}" nghĩa là gì?`,
         options: options,
         correctAnswer: grammar.grammar_description
     };

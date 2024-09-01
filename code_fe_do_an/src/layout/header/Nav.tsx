@@ -15,10 +15,20 @@ import {
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/hook/AuthContext";
 import { FaBars } from "react-icons/fa";
+import { useState, useEffect } from "react";
 
 export function Nav() {
-
   const auth = useAuth();
+  const [role, setRole] = useState("");
+
+  useEffect(() => {
+      const userEncode = localStorage.getItem("user");
+        if (userEncode) {
+          const userDecode = JSON.parse(userEncode);
+          setRole(userDecode?.role_id.toString());
+    }
+  }, [auth])
+  
   function onNavChange() {
     setTimeout(() => {
       const triggers = document.querySelectorAll(
@@ -51,7 +61,69 @@ export function Nav() {
             </NavigationMenuLink>
           </NavLink>
         </NavigationMenuItem>
-        <NavigationMenuItem className="hover:bg-[#B6DA9F] hover:text-black rounded-md">
+        {/* admin */}
+          {role === '1'&&(<NavigationMenuItem className="hover:bg-[#B6DA9F] hover:text-black rounded-md">
+          <NavigationMenuTrigger className="bg-transparent font-semibold w-40 submenu-trigger text-[#6fb24d] text-[20px] ">
+            Quản lý
+          </NavigationMenuTrigger>
+          {auth.token !== "" ? (
+            <NavigationMenuContent>
+              <ul className="gap-3 p-6 text-xl w-60">
+                <ListItem href="/admin/user-management" title="Quản lý người dùng" ></ListItem>
+                <ListItem href="/admin/notification/manage" title="Quản lý thông báo" ></ListItem>
+              </ul>
+            </NavigationMenuContent>
+          ) : (
+            <NavigationMenuContent>
+              <ul className="gap-3 p-6 w-60">
+                <ListItem title="Bạn chưa đăng nhập!!!" />
+              </ul>
+            </NavigationMenuContent>
+          )}
+        </NavigationMenuItem>)}
+
+         {/* content manager*/}
+         {role === '2'&&(<NavigationMenuItem className="hover:bg-[#B6DA9F] hover:text-black rounded-md">
+          <NavigationMenuTrigger className="bg-transparent font-semibold w-40 submenu-trigger text-[#6fb24d] text-[20px] ">
+            Quản lý
+          </NavigationMenuTrigger>
+          {auth.token !== "" ? (
+            <NavigationMenuContent>
+              <ul className="gap-3 p-6 text-xl w-60">
+                <ListItem href="/contentManager/course-management" title="Quản lý khoá học" ></ListItem>
+              </ul>
+            </NavigationMenuContent>
+          ) : (
+            <NavigationMenuContent>
+              <ul className="gap-3 p-6 w-60">
+                <ListItem title="Bạn chưa đăng nhập!!!" />
+              </ul>
+            </NavigationMenuContent>
+          )}
+        </NavigationMenuItem>)}
+
+        {/* content creator*/}
+        {role === '3'&&(<NavigationMenuItem className="hover:bg-[#B6DA9F] hover:text-black rounded-md">
+          <NavigationMenuTrigger className="bg-transparent font-semibold w-40 submenu-trigger text-[#6fb24d] text-[20px] ">
+            Quản lý
+          </NavigationMenuTrigger>
+          {auth.token !== "" ? (
+            <NavigationMenuContent>
+              <ul className="gap-3 p-6 text-xl w-60">
+                <ListItem href="/contentCreator/course-management" title="Quản lý khoá học" ></ListItem>
+                <ListItem href="/contentCreator/exam-management/manage" title="Quản lý bài kiểm tra" ></ListItem>
+              </ul>
+            </NavigationMenuContent>
+          ) : (
+            <NavigationMenuContent>
+              <ul className="gap-3 p-6 w-60">
+                <ListItem title="Bạn chưa đăng nhập!!!" />
+              </ul>
+            </NavigationMenuContent>
+          )}
+        </NavigationMenuItem>)}
+
+        {role === '4'&&(<NavigationMenuItem className="hover:bg-[#B6DA9F] hover:text-black rounded-md">
           <NavigationMenuTrigger className="bg-transparent font-semibold w-40 submenu-trigger text-[#6fb24d] text-[20px] ">
             HỌC TẬP
           </NavigationMenuTrigger>
@@ -69,7 +141,8 @@ export function Nav() {
               </ul>
             </NavigationMenuContent>
           )}
-        </NavigationMenuItem>
+        </NavigationMenuItem>)}
+        
         {/* <NavigationMenuItem  className="hover:bg-[#B6DA9F] hover:text-black rounded-md">
           <NavigationMenuTrigger className="bg-transparent w-40 font-semibold submenu-trigger text-[#6fb24d] text-[20px]">
             TRÒ CHƠI
@@ -138,25 +211,6 @@ export function Nav() {
                 </NavigationMenuContent>
               )}
             </NavigationMenuItem>
-            {/* <NavigationMenuItem className="hover:bg-[#B6DA9F] hover:text-black rounded-md">
-              <NavigationMenuTrigger className="bg-transparent font-semibold submenu-trigger text-[#6fb24d] text-[15px]">
-                TRÒ CHƠI
-              </NavigationMenuTrigger>
-              {auth.token !== "" ? (
-                <NavigationMenuContent>
-                  <ul className="gap-3 p-6 w-60">
-                    <ListItem href="/" title="Trò chơi 1" />
-                    <ListItem href="/" title="Trò chơi 2" />
-                  </ul>
-                </NavigationMenuContent>
-              ) : (
-                <NavigationMenuContent>
-                  <ul className="gap-3 p-6 w-60">
-                    <ListItem title="Bạn chưa đăng nhập!!!" />
-                  </ul>
-                </NavigationMenuContent>
-              )}
-            </NavigationMenuItem> */}
             <NavigationMenuItem className="hover:bg-[#B6DA9F] hover:text-black rounded-md">
               <NavigationMenuTrigger className="bg-transparent font-semibold submenu-trigger text-[#6fb24d] text-[15px]">
                 GIỚI THIỆU

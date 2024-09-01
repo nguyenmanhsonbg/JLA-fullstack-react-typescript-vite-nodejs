@@ -1,5 +1,6 @@
 import { Typography, Flex, Button, Space } from "antd";
 import { FcIdea } from "react-icons/fc";
+import { useEffect } from "react";
 
 function StepThree({ handlePreviousStep, handleSubmit, waitingCreate, id }) {
   return (
@@ -12,24 +13,22 @@ function StepThree({ handlePreviousStep, handleSubmit, waitingCreate, id }) {
           style={{ marginTop: "3%", maxWidth: "600px" }}
         >
           {id
-            ? `Congratulations! You've completed the setup. By clicking "Yes" below,
-          you can update course information. This process may take a few minutes.
-          Please wait until it is finished.`
-            : `Congratulations! You've completed the setup. By clicking "Yes" below,
-          you can create a new course. This process may take a few minutes.
-          Please wait until it is finished.`}
+            ? `Hoàn tất việc cập nhật. Bằng cách nhấp vào "Hoàn tất" bên dưới, bạn có thể cập nhật khóa học. Quá trình này có thể mất một vài phút. Vui lòng đợi cho đến khi nó hoàn tất.`
+            : `Hoàn tất việc thiết lập. Bằng cách nhấp vào "Hoàn tất" bên dưới, bạn có thể tạo một khóa học mới. Quá trình này có thể mất một vài phút. Vui lòng đợi cho đến khi nó hoàn tất.`}
         </Typography.Title>
       </Space>
       <Flex
         style={{ display: "flex", justifyContent: "center", marginTop: "2%" }}
       >
-        <Button
+       {/* <Button
           style={{ width: "25%" }}
           type="default"
-          onClick={handlePreviousStep}
+          onClick={() => {
+            handlePreviousStep();
+          }}
         >
-          Return
-        </Button>
+          Quay lại
+        </Button>  */}
         <div style={{ width: "20px" }}></div>
         <Button
           style={{ width: "25%" }}
@@ -38,7 +37,7 @@ function StepThree({ handlePreviousStep, handleSubmit, waitingCreate, id }) {
           onClick={handleSubmit}
           loading={waitingCreate}
         >
-          Yes
+          Hoàn tất
         </Button>
       </Flex>
     </>
@@ -46,3 +45,4 @@ function StepThree({ handlePreviousStep, handleSubmit, waitingCreate, id }) {
 }
 
 export default StepThree;
+
