@@ -6,7 +6,7 @@ const { omitPassword } = require("../helper/user");
 
 const generateToken = (userData, refreshToken = false) => {
 	const tokenType = refreshToken ? REFRESH_TOKEN_SECRET : ACCESS_TOKEN_SECRET;
-	const tokenExpire = refreshToken ? "365d" : "7d";
+	const tokenExpire = refreshToken ? "30d" : "1h";
 	const token = jwt.sign(userData, tokenType, { expiresIn: tokenExpire });
 	return token;
 };
