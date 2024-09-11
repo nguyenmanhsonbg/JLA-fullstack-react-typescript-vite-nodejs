@@ -37,3 +37,25 @@ Màn login
 
 Chức năng đăng ký có thể lấy otp từ database
 ![image](https://github.com/user-attachments/assets/c66bec5a-b6a5-49d7-8116-0aa6795925c1)
+
+[Content creator]
+Màn tạo khóa học
+![image](https://github.com/user-attachments/assets/af35c46c-9782-4886-8dcd-4f9e100013b6)
+![image](https://github.com/user-attachments/assets/15aec31d-a7bf-4272-9928-33abd453246d)
+
+Màn luyện tập từ vựng
+![image](https://github.com/user-attachments/assets/8c5961de-10a9-4e82-bd28-7146f0bd0d6a)
+![image](https://github.com/user-attachments/assets/771b73fa-76a4-4195-a862-e51829809217)
+
+
+Màn tạo bài kiểm tra
+![image](https://github.com/user-attachments/assets/2d95150a-2e1b-40f9-8002-57205c4f62bb)
+![image](https://github.com/user-attachments/assets/46a025cd-e6fc-4381-8b31-2113a857e06d)
+
+Màn làm bài kiểm tra
+![image](https://github.com/user-attachments/assets/27f8a232-ff44-4fb2-9297-c49c04b7f819)
+![image](https://github.com/user-attachments/assets/8b649e96-c1b8-4673-be14-f3d46427c5f7)
+
+Màn lịch sử kiểm tra
+![image](https://github.com/user-attachments/assets/339f7589-f9b9-482a-a594-6edadf6e1062)
+![image](https://github.com/user-attachments/assets/b6bbdb65-d8c7-42cd-b5db-f2408e9aad60)
