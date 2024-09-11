@@ -50,41 +50,43 @@ const refreshNewToken = async (token, req) => {
 };
 
 const checkAuthAndRole = (requiredRole = []) => {
-	return (req, res, next) => {
-		const token = req.headers.authorization;
-
-		if (!token) {
+	return async (req, res, next) => {
+	  const token = req.headers.authorization;
+  
+	  if (!token) {
+		return unauthorized(res);
+	  }
+  
+	  jwt.verify(token, ACCESS_TOKEN_SECRET, async (err, decoded) => {
+		if (err && err.name === "TokenExpiredError") {
+		  // Nếu token hết hạn, thử làm mới token
+		  const newToken = await refreshNewToken(req);
+		  if (newToken === "login_required") {
 			return unauthorized(res);
+		  } else if (newToken) {
+			req.headers.authorization = newToken;
+		  } else {
+			return unauthorized(res);
+		  }
+		} else if (err) {
+		  return forbidden(res);  // Token không hợp lệ
 		}
-
-		jwt.verify(token, ACCESS_TOKEN_SECRET, (err, decoded) => {
-			if (err) {
-				return forbidden(res);
-			} else {
-				const newToken = refreshNewToken(token, req);
-				if (newToken === "login_required") {
-					return unauthorized(res);
-				} else {
-					req.headers.authorization = newToken;
-					const currentTimestamp = Math.floor(Date.now() / 1000);
-					if (decoded.exp && decoded.exp < currentTimestamp) {
-						return unauthorized(res);
-					}
-					const accountRole = decoded.role_id;
-					const accountId = decoded.account_id;
-
-					if (requiredRole.includes(accountRole)) {
-						req.accountRole = accountRole;
-						req.accountId = accountId;
-						next();
-					} else {
-						return forbidden(res);
-					}
-				}
-			}
-		});
+  
+		// Token hợp lệ hoặc đã được làm mới
+		const accountRole = decoded.role_id;
+		const accountId = decoded.account_id;
+  
+		if (requiredRole.includes(accountRole)) {
+		  req.accountRole = accountRole;
+		  req.accountId = accountId;
+		  next();  // Tiếp tục xử lý request
+		} else {
+		  return forbidden(res);  // Không có quyền truy cập
+		}
+	  });
 	};
-};
+  };
+  
 
 module.exports = {
 	checkAuthAndRole,

@@ -10,7 +10,7 @@ import React, {
   useState,
 } from "react";
 import { useNavigate } from "react-router-dom";
-// Định nghĩa kiểu dữ liệu cho context
+
 
 interface User {
   account_id: number;
